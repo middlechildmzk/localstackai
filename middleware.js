@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
@@ -7,14 +9,18 @@ export function middleware(req) {
   const pass = process.env.INTERNAL_PASSWORD;
 
   if (!user || !pass) {
-    return new Response(null, { status: 200, headers: { 'x-internal-auth': 'not-configured' } });
+    const res = NextResponse.next();
+    res.headers.set('x-internal-auth', 'not-configured');
+    return res;
   }
 
   const auth = req.headers.get('authorization') || '';
   const expected = 'Basic ' + btoa(`${user}:${pass}`);
 
   if (auth === expected) {
-    return new Response(null, { status: 200, headers: { 'x-internal-auth': 'ok' } });
+    const res = NextResponse.next();
+    res.headers.set('x-internal-auth', 'ok');
+    return res;
   }
 
   return new Response('Cleared SourcingOS Lite is internal. Enter your username and password.', {
