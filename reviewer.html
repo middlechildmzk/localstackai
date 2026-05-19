@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Internal Review Board | Cleared SourcingOS Lite</title>
+<link rel="stylesheet" href="/style.css">
+<style>.review-grid{display:grid;grid-template-columns:320px 1fr;gap:18px}.review-output{min-height:520px;max-height:70vh;overflow:auto}@media(max-width:900px){.review-grid{grid-template-columns:1fr}.review-output{max-height:none}}</style>
+</head>
+<body>
+<div class="toast" id="toast">Done</div>
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow"><span class="dot"></span> Internal AI Review Board</div>
+      <h1>Product Audit Reviewer</h1>
+      <p>Private review board for Cleared SourcingOS Lite. It calls your server-side <code>/api/audit</code> route, so your Anthropic key stays in Vercel environment variables, not browser code.</p>
+      <p><a href="/">← Back to workbench</a> · <a href="/chat.html">ChatGPT panel</a></p>
+    </div>
+    <div class="hero-card">
+      <h2>Setup needed</h2>
+      <p>Add <code>ANTHROPIC_API_KEY</code> in Vercel Environment Variables to enable this page. Keep this app internal or password protected before using it.</p>
+      <div class="row"><span class="pill warn">Server-side only</span><span class="pill red">No public API key</span><span class="pill">Synthetic examples only</span></div>
+    </div>
+  </section>
+
+  <div class="review-grid" style="margin-top:18px">
+    <aside class="stack">
+      <div class="card">
+        <h2>Review sections</h2>
+        <label><input type="checkbox" class="sec" value="executive_verdict" checked> Executive verdict</label>
+        <label><input type="checkbox" class="sec" value="bugs_functional_testing" checked> Bugs and functional testing</label>
+        <label><input type="checkbox" class="sec" value="ui_ux" checked> UI/UX</label>
+        <label><input type="checkbox" class="sec" value="recruiting_workflow" checked> Recruiting workflow</label>
+        <label><input type="checkbox" class="sec" value="clearance_opsec" checked> Clearance / OPSEC</label>
+        <label><input type="checkbox" class="sec" value="legal_risk" checked> AI hiring law risk</label>
+        <label><input type="checkbox" class="sec" value="competitive_market" checked> Competitive market</label>
+        <label><input type="checkbox" class="sec" value="product_strategy" checked> Product strategy</label>
+        <label><input type="checkbox" class="sec" value="final_recommendations" checked> Final recommendations</label>
+        <label style="margin-top:10px">Extra context</label>
+        <textarea id="context" placeholder="Paste release notes, Claude/Gemini feedback, or a bug report here..."></textarea>
+        <div class="btnrow"><button class="btn" onclick="runAudit()">Run Review</button><button class="btn secondary" onclick="quickFinal()">Final Only</button><button class="btn ghost" onclick="copyOut()">Copy</button></div>
+        <div class="status" id="status">Ready.</div>
+      </div>
+    </aside>
+    <main class="card">
+      <h2>Audit output</h2>
+      <pre id="output" class="review-output">Run a review to generate an internal product audit.</pre>
+    </main>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);function sections(){return [...document.querySelectorAll('.sec:checked')].map(x=>x.value)}async function runAudit(custom){const selected=custom||sections();if(!selected.length){$('status').textContent='Select at least one section.';return}$('status').textContent='Running audit...';$('output').textContent='Running audit...';try{const res=await fetch('/api/audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({appVersion:'V9 Internal Workbench',sections:selected,context:$('context').value})});const data=await res.json();if(!res.ok)throw new Error(data.error||'Audit failed');$('output').textContent=data.text||'(No text returned)';$('status').textContent='Done.'}catch(e){$('output').textContent='Error: '+e.message;$('status').textContent='Error: '+e.message}}function quickFinal(){runAudit(['final_recommendations'])}function copyOut(){navigator.clipboard.writeText($('output').innerText);$('status').textContent='Copied.'}
+</script>
+</body>
+</html>
