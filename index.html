@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cleared SourcingOS Lite | V9 Internal Workbench</title>
-<meta name="description" content="Internal local-first cleared and federal technical sourcing workbench for projects, candidates, Boolean lanes, ClearanceJobs strings, outreach, and manager notes.">
+<title>SourcingOS Workbench | Local-First Sourcing Command Center</title>
+<meta name="description" content="Local-first SourcingOS Workbench for projects, source packs, cleared strategy, candidate evidence, Boolean lanes, outreach drafts, and manager notes.">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -12,38 +12,39 @@
 <div class="wrap">
   <section class="hero">
     <div class="hero-card">
-      <div class="eyebrow"><span class="dot"></span> V9 Internal Workbench</div>
-      <h1>Cleared SourcingOS Lite</h1>
-      <p>Internal, local-first sourcing workbench for cleared and federal technical roles. Build projects, search lanes, Boolean/X-Ray strings, ClearanceJobs searches, candidate evidence rows, outreach, and hiring-manager notes.</p>
+      <div class="eyebrow"><span class="dot"></span> SourcingOS Workbench · V10 Bridge</div>
+      <h1>SourcingOS Workbench</h1>
+      <p>The primary command center for sourcing projects, role intake, Registry source packs, cleared/federal strategy, candidate evidence rows, search lanes, outreach drafts, exports, and project memory.</p>
       <div class="btnrow no-print">
+        <a class="btn secondary" href="/suite.html">← SourcingOS Home</a>
+        <a class="btn secondary" href="/registry.html">Resource Vault</a>
         <button class="btn" onclick="applyTemplate('devsecops')">Load DevSecOps</button>
         <button class="btn secondary" onclick="applyTemplate('java')">Load Java</button>
         <button class="btn secondary" onclick="applyTemplate('cyber')">Load Cyber/RMF</button>
         <button class="btn secondary" onclick="applyTemplate('sourcer')">Load Sourcer</button>
         <button class="btn ghost" onclick="clearFields()">New Role</button>
-        <button class="btn red" onclick="purgeAll()">Purge Local Data</button>
       </div>
       <div class="row" style="margin-top:14px">
-        <span class="pill green">Internal</span><span class="pill">Projects</span><span class="pill">Candidate table</span><span class="pill">Boolean lane splitter</span><span class="pill warn">Signals, not proof</span>
+        <span class="pill green">Command center</span><span class="pill">Projects</span><span class="pill">Registry imports</span><span class="pill">Cleared strategy</span><span class="pill warn">Signals, not proof</span>
       </div>
     </div>
     <div class="hero-card">
       <h2>Safety boundary</h2>
       <p><strong>Use synthetic or redacted data only.</strong> Do not paste classified info, CUI, export-controlled data, SSNs, DOBs, personal emails, phone numbers, home addresses, or sensitive candidate PII.</p>
-      <p>This tool does not verify clearance, rank candidates for hiring, make employment decisions, or replace approved company processes.</p>
-      <div class="row"><span class="pill red">No clearance verification</span><span class="pill red">No automated decisioning</span><span class="pill">Human review required</span></div>
+      <p>This tool flags common PII patterns but cannot catch every format. You are responsible for redacting all data before entry. Clearance mentions are public breadcrumbs only and are never verification.</p>
+      <div class="row"><span class="pill red" title="Public clearance text is a breadcrumb, not a verified credential.">No clearance verification</span><span class="pill red">No auto-ranking</span><span class="pill">Human approval required</span></div>
     </div>
   </section>
 
   <nav class="nav no-print">
-    <a href="#intake">Intake</a><a href="#projects">Projects</a><a href="#strategy-section">Strategy</a><a href="#search-section">Search</a><a href="#candidate-section">Candidates</a><a href="#export-section">Export</a><a href="/chat.html">ChatGPT</a><a href="/reviewer.html">Reviewer</a>
+    <a href="/suite.html">Home</a><a href="#intake">Intake</a><a href="#projects">Projects</a><a href="#strategy-section">Strategy</a><a href="#search-section">Search</a><a href="#candidate-section">Candidates</a><a href="#export-section">Export</a><a href="/registry.html">Registry</a><a href="/chat.html">Tools: ChatGPT</a><a href="/reviewer.html">Tools: Reviewer</a>
   </nav>
 
   <section class="grid">
     <aside class="stack sticky no-print">
       <div class="card" id="intake">
         <h2>1. Role intake</h2>
-        <div class="alert red">Internal only. The app blocks obvious sensitive PII patterns, but you are still responsible for redacting all data.</div>
+        <div class="alert red">Local-first workbench. Public evidence signals only. Do not store or export unredacted PII, CUI, classified, export-controlled, or restricted-source data.</div>
         <div class="check" style="margin:10px 0"><input id="complianceCheck" type="checkbox"><span>I confirm this session contains no classified information, CUI, export-controlled data, or sensitive candidate PII, and all outputs require human review.</span></div>
         <div class="formgrid">
           <div><label>Role name</label><input id="roleName" placeholder="TS/SCI DevSecOps Engineer"></div>
@@ -57,15 +58,30 @@
         <label>Must-have skills</label><input id="must" placeholder="AWS GovCloud, Kubernetes, Terraform, RMF, Java...">
         <label>Target companies</label><input id="companies" placeholder="Booz Allen, Leidos, CACI, Peraton, SAIC, GDIT...">
         <label>JD / intake notes</label><textarea id="jdText" placeholder="Paste redacted JD or intake notes..."></textarea><div class="counter" id="jdTextCount">0 characters</div>
-        <label>Candidate profile / notes</label><textarea id="candidateText" placeholder="Paste redacted candidate text for evidence review..."></textarea><div class="counter" id="candidateTextCount">0 characters</div>
+        <label>Candidate profile / notes</label><textarea id="candidateText" placeholder="Paste redacted candidate text for evidence review. Avoid full names, emails, phones, DOBs, addresses, or sensitive PII..."></textarea><div class="counter" id="candidateTextCount">0 characters</div>
         <label>Risk / disqualifier notes</label><textarea id="notes" placeholder="No relocation, onsite only, comp issue, poly required, manager tradeoffs..."></textarea>
         <div class="status" id="riskStatus"></div>
         <div class="btnrow"><button class="btn" onclick="runAll()">Generate Workbench</button><button class="btn secondary" onclick="saveProject()">Save Project</button><button class="btn ghost" onclick="copyAll()">Copy Report</button></div>
       </div>
 
+      <div class="card">
+        <h2>2. Module imports</h2>
+        <p class="small">Import Registry source packs, cleared strategy exports, or full bridge JSON into this project. Imports are previewed and stored as project assets.</p>
+        <input type="file" id="bridgeFile" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
+        <div class="btnrow"><button class="btn secondary" onclick="importModule('registry')">Import Registry Pack JSON</button><button class="btn secondary" onclick="importModule('cleared')">Import Cleared Strategy JSON</button><button class="btn secondary" onclick="importModule('bridge')">Import Bridge JSON</button></div>
+        <div class="btnrow"><a class="btn ghost" href="/registry.html">Open Registry</a><a class="btn ghost" href="/master-import.html">Open Import Hub</a></div>
+        <div class="status" id="importStatus"></div>
+      </div>
+
       <div class="card" id="projects">
-        <h2>2. Saved projects</h2>
+        <h2>3. Saved projects</h2>
         <div id="projectList" class="project-list"><p class="small">No saved projects yet.</p></div>
+      </div>
+
+      <div class="card danger-zone">
+        <h2>Danger zone</h2>
+        <p class="small">Deletes local browser data for this workbench only.</p>
+        <button class="btn red" onclick="purgeAll()">Purge Local Data</button>
       </div>
     </aside>
 
@@ -74,7 +90,8 @@
         <button class="tab active" onclick="showTab('tab-strategy',this)">Strategy</button>
         <button class="tab" onclick="showTab('tab-search',this)">Search Lanes</button>
         <button class="tab" onclick="showTab('tab-candidates',this)">Candidates</button>
-        <button class="tab" onclick="showTab('tab-ai',this)">AI</button>
+        <button class="tab" onclick="showTab('tab-assets',this)">Project Assets</button>
+        <button class="tab" onclick="showTab('tab-ai',this)">AI Tools</button>
         <button class="tab" onclick="showTab('tab-export',this)">Export</button>
       </div>
 
@@ -105,24 +122,30 @@
         <h2 id="candidate-section">Candidate evidence table</h2>
         <div class="output">
           <div class="box wide"><h3>Evidence completeness <button class="btn small secondary" onclick="copyBox('evidence')">Copy</button></h3><pre id="evidence"></pre></div>
-          <div class="box wide"><h3>Add candidate row</h3><div class="formgrid"><div><label>Name / placeholder</label><input id="candName" placeholder="Candidate A or redacted name"></div><div><label>Source</label><input id="candSource" placeholder="LinkedIn, ClearanceJobs, referral, ATS..."></div></div><label>Next action</label><input id="candNext" placeholder="Manual screen, verify clearance, ask HM, reject after human review..."><div class="btnrow"><button class="btn secondary" onclick="addCandidate()">Add Candidate Row</button><button class="btn ghost" onclick="exportCSV()">Export CSV</button></div></div>
+          <div class="box wide"><h3>Add candidate row</h3><div class="alert">Use codenames, initials, or role codes if this session may be shared or exported. Clearance mentions are breadcrumbs only, not verified status.</div><div class="formgrid"><div><label>Name / placeholder</label><input id="candName" placeholder="Candidate A, initials, or redacted code"></div><div><label>Source</label><input id="candSource" placeholder="LinkedIn, ClearanceJobs, referral, ATS..."></div></div><label>Next action</label><input id="candNext" placeholder="Manual screen, verify clearance, ask HM, reject after human review..."><div class="btnrow"><button class="btn secondary" onclick="addCandidate()">Add Candidate Row</button><button class="btn ghost" onclick="exportCSV()">Export CSV</button></div></div>
           <div class="box wide"><h3>Candidate rows</h3><div id="candidateRows"><p class="small">No candidate rows yet.</p></div></div>
         </div>
       </div>
 
+      <div class="card tabpane hide" id="tab-assets">
+        <h2>Imported project assets</h2>
+        <p class="small">Imported Registry source packs and cleared strategy objects stay separate so they do not overwrite your project notes. Use Merge/Overwrite only after reviewing.</p>
+        <div id="importPreview" class="box hide"></div>
+        <div id="importedArtifacts"><p class="small">No imported assets yet.</p></div>
+      </div>
+
       <div class="card tabpane hide" id="tab-ai">
-        <h2>ChatGPT and review board</h2>
-        <p>These routes are server-side. They require Vercel environment variables before they work: <code>OPENAI_API_KEY</code> and optionally <code>ANTHROPIC_API_KEY</code>.</p>
+        <h2>AI tools</h2>
+        <div class="alert">AI routes require Vercel environment variables. If API keys are not configured, use copy/export and paste into your preferred AI tool. Do not send sensitive PII, CUI, classified, or export-controlled content.</div>
         <div class="btnrow"><button class="btn" onclick="askChatGPT('sourcing')">Ask ChatGPT for next actions</button><button class="btn secondary" onclick="askChatGPT('boolean')">Improve Boolean</button><button class="btn secondary" onclick="askChatGPT('hm')">Draft HM Update</button><button class="btn ghost" onclick="openReviewer()">Open Reviewer</button></div>
-        <div class="box" style="margin-top:12px"><h3>AI output <button class="btn small secondary" onclick="copyBox('aiOutput')">Copy</button></h3><pre id="aiOutput">AI output will appear here after API keys are configured.</pre></div>
-        <p class="small">Do not send sensitive PII, CUI, classified details, or export-controlled content to AI routes.</p>
+        <div class="box" style="margin-top:12px"><h3>AI output <button class="btn small secondary" onclick="copyBox('aiOutput')">Copy</button></h3><pre id="aiOutput">AI output will appear here only if API keys are configured.</pre></div>
       </div>
 
       <div class="card tabpane hide" id="tab-export">
         <h2 id="export-section">Exports</h2>
-        <div class="alert">Exports include human-review language. Do not export unredacted candidate PII, CUI, classified information, or unverified clearance claims.</div>
-        <div class="btnrow"><button class="btn secondary" onclick="exportMarkdown()">Markdown Report</button><button class="btn secondary" onclick="exportCSV()">Candidate CSV</button><button class="btn secondary" onclick="exportJSON()">JSON Backup</button><button class="btn ghost" onclick="window.print()">Print / PDF</button></div>
-        <p class="footer">Cleared SourcingOS Lite supports sourcing judgment. It does not verify clearance, rank candidates for employment, or make hiring decisions.</p>
+        <div class="alert">Exports include human-review language. Do not export unredacted candidate PII, CUI, classified information, or unverified clearance claims. If sourcing in GDPR, CCPA, or other privacy-regulated jurisdictions, apply data-minimization rules before export.</div>
+        <div class="btnrow"><button class="btn secondary" onclick="exportBridgeJSON()">Project Bridge JSON v1.1</button><button class="btn secondary" onclick="exportMarkdown()">Markdown Report</button><button class="btn secondary" onclick="exportCSV()">Candidate CSV</button><button class="btn secondary" onclick="exportJSON()">JSON Backup</button><button class="btn ghost" onclick="window.print()">Print / PDF</button></div>
+        <p class="footer">SourcingOS Workbench supports sourcing judgment. It does not verify clearance, rank candidates for employment, or make hiring decisions.</p>
       </div>
     </main>
   </section>
