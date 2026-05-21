@@ -1,7 +1,8 @@
 import logging
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -9,20 +10,32 @@ from .config import settings
 
 logger = logging.getLogger('SourcingDB')
 
-engine = create_engine(
-    settings.database_url,
+engine: Engine = create_engine(
+    settings.DATABASE_URL,
     pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
+    pool_timeout=settings.DB_POOL_TIMEOUT,
     pool_recycle=1800,
+    echo=settings.DB_ECHO_SQL,
+    connect_args={'options': '-csearch_path=public'},
     future=True,
 )
 
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False, future=True)
+
+@event.listens_for(engine, 'connect')
+def _on_connect(dbapi_connection, connection_record) -> None:  # type: ignore[no-untyped-def]
+    cursor = dbapi_connection.cursor()
+    cursor.execute("SET timezone='UTC'")
+    cursor.close()
+
+
+SessionFactory = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False, future=True)
+SessionLocal = SessionFactory
 
 
 def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
+    db = SessionFactory()
     try:
         yield db
         db.commit()
@@ -39,7 +52,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def session_scope() -> Generator[Session, None, None]:
-    db = SessionLocal()
+    db = SessionFactory()
     try:
         yield db
         db.commit()
@@ -48,3 +61,14 @@ def session_scope() -> Generator[Session, None, None]:
         raise
     finally:
         db.close()
+
+
+def verify_database_connection() -> bool:
+    try:
+        with engine.connect() as conn:
+            conn.execute(text('SELECT 1'))
+        logger.info('Database connectivity verified.')
+        return True
+    except Exception as exc:
+        logger.error('Database connectivity check failed: %s', exc)
+        return False
