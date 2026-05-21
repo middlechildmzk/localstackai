@@ -3,106 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SourcingOS Talent Search 14.5</title>
-<meta name="description" content="A daily sourcing command center for building platform searches, reviewing live public-source evidence, drafting outreach, managing candidate pipeline, and preserving project memory.">
-<link rel="stylesheet" href="/talent-search.css">
-<link rel="stylesheet" href="/sourcingos-14-5.css">
-<link rel="stylesheet" href="/sourcingos-14-5-ux.css">
+<title>SourcingOS 14.6 Clean Shell</title>
+<meta name="description" content="SourcingOS clean sourcing cockpit for search strategy, public leads, candidate review, pipeline memory, and draft-only outreach.">
+<link rel="stylesheet" href="/sourcingos-14-6.css">
 </head>
 <body>
-<div id="toast" class="toast">Done</div>
-<div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand"><div class="logo-dot"></div><div><strong>SourcingOS</strong><span>Talent Search 14.5</span></div></div>
-    <nav>
-      <a class="active" href="/">Talent Search</a>
-      <a href="/projects.html">Projects</a>
-      <a href="#candidates">Candidates</a>
-      <a href="/registry.html">Sources</a>
-      <a href="#outreach">Outreach</a>
-      <a href="#copilot">Copilot</a>
-    </nav>
-    <div class="sidebar-card">
-      <div class="tiny-label">Active req</div>
-      <select id="activeProject" onchange="loadProjectFromSelect()"><option value="">New sourcing project</option></select>
-      <button class="btn small secondary full" onclick="saveProject()">Save Project</button>
-    </div>
-    <div class="sidebar-card muted-card">
-      <strong>Daily rule</strong>
-      <p>Use SourcingOS to think, search, summarize, and draft. Run restricted-platform searches and outreach inside LinkedIn, ClearanceJobs, Indeed, Avature, or approved tools.</p>
-    </div>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <div><div class="eyebrow">Daily sourcing cockpit · unified 14.5 state</div><h1>What are you sourcing today?</h1></div>
-      <div class="top-actions"><a class="btn secondary" href="/projects.html">Project workspace</a><a class="btn secondary" href="/registry.html">Source library</a></div>
-    </header>
-
-    <section class="command-card">
-      <textarea id="commandInput" placeholder="Describe the role, paste a JD, paste a redacted profile, or paste Boolean…"></textarea>
-      <div class="command-footer">
-        <div id="intentChip" class="intent-chip">Intent: waiting for input</div>
-        <div class="btnrow"><button class="btn" onclick="handleCommand()">Run SourcingOS</button><button class="btn secondary" onclick="buildSearches()">Build Searches</button><button class="btn ghost" onclick="reviewProfile()">Review Profile</button></div>
-      </div>
-    </section>
-
-    <section class="workspace">
-      <aside class="role-panel card">
-        <div class="section-title"><span>Role context</span><button class="linkbtn" onclick="analyzeJD()">Analyze JD</button></div>
-        <label>Role title</label><input id="roleTitle" placeholder="TS/SCI DevSecOps Engineer">
-        <label>Must-haves</label><textarea id="mustHaves" placeholder="Kubernetes, Terraform, AWS GovCloud, RMF…"></textarea>
-        <label>Nice-to-haves</label><textarea id="niceHaves" placeholder="CI poly, STIG, ACAS, GitLab…"></textarea>
-        <label>Clearance context</label><select id="clearance"><option>Non-cleared / not required</option><option>Public Trust</option><option>Secret</option><option>Top Secret</option><option selected>TS/SCI</option><option>TS/SCI + CI Poly</option><option>TS/SCI + FSP</option></select>
-        <label>Location / work model</label><input id="location" placeholder="Remote, Fort Meade, DMV, Colorado Springs…">
-        <label>Target companies</label><textarea id="targetCompanies" placeholder="Booz Allen, Leidos, CACI, Peraton, SAIC, GDIT…"></textarea>
-        <label>Disqualifiers / HM feedback</label><textarea id="feedback" placeholder="No relocation, must be local, HM likes defense prime backgrounds…"></textarea>
-        <div class="mini-grid"><button class="btn small secondary" onclick="loadTemplate('devsecops')">DevSecOps</button><button class="btn small secondary" onclick="loadTemplate('java')">Java</button><button class="btn small secondary" onclick="loadTemplate('cyber')">Cyber</button><button class="btn small secondary" onclick="loadTemplate('sourcer')">Sourcer</button></div>
-      </aside>
-
-      <section class="center-panel">
-        <div class="source-toggle card">
-          <div class="section-title"><span>Platform searches to build</span><button class="linkbtn" onclick="buildSearches()">Regenerate</button></div>
-          <div class="toggles">
-            <label><input type="checkbox" class="sourceBox" value="linkedin" checked> LinkedIn Recruiter</label>
-            <label><input type="checkbox" class="sourceBox" value="clearancejobs" checked> ClearanceJobs</label>
-            <label><input type="checkbox" class="sourceBox" value="indeed" checked> Indeed</label>
-            <label><input type="checkbox" class="sourceBox" value="github" checked> GitHub/Web</label>
-            <label><input type="checkbox" class="sourceBox" value="xray" checked> Google X-Ray</label>
-            <label><input type="checkbox" class="sourceBox" value="avature" checked> Avature Rediscovery</label>
-          </div>
-        </div>
-
-        <div id="searchCards" class="cards-grid"></div>
-
-        <div class="card" id="candidates">
-          <div class="section-title"><span>Candidate leads reviewed</span><button class="linkbtn" onclick="reviewProfile()">Review pasted profile</button></div>
-          <div id="candidateCards" class="candidate-list"><div class="empty-state">Paste redacted profile/resume text into the command bar and click <strong>Review Profile</strong>. Or use <strong>Review as Candidate</strong> from a public-source candidate lead above.</div></div>
-        </div>
-      </section>
-
-      <aside class="copilot-panel card" id="copilot">
-        <div class="section-title"><span>Sourcing Copilot</span><span class="status-pill" id="aiStatus">Rule mode</span></div>
-        <div class="copilot-actions">
-          <button onclick="analyzeJD()">Analyze JD</button>
-          <button onclick="buildSearches()">Build Searches</button>
-          <button onclick="improveBoolean()">Improve Boolean</button>
-          <button onclick="reviewProfile()">Review Profile</button>
-          <button onclick="draftOutreach()">Draft Outreach</button>
-          <button onclick="draftHMUpdate()">Draft HM Update</button>
-          <button onclick="suggestNextMove()">Next Search Move</button>
-          <button onclick="saveLearning()">Save Learning</button>
-        </div>
-        <div class="copilot-output" id="copilotOutput">SourcingOS is ready. Paste a JD or describe the talent you need.</div>
-        <div class="outreach-box" id="outreach"><div class="section-title"><span>Outreach draft</span><button class="linkbtn" onclick="copyText('outreachText')">Copy</button></div><pre id="outreachText">Drafts will appear here.</pre></div>
-        <div class="outreach-box"><div class="section-title"><span>HM update</span><button class="linkbtn" onclick="copyText('hmText')">Copy</button></div><pre id="hmText">HM updates will appear here.</pre></div>
-      </aside>
-    </section>
-  </main>
-</div>
-<script src="/talent-search.js"></script>
-<script src="/sourcingos-14-5.js"></script>
-<script src="/live-source-runner.js"></script>
-<script src="/sourcingos-14-5-ux.js"></script>
+<div id="app"></div>
+<script src="/sourcingos-14-6.js"></script>
 </body>
 </html>
