@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SourcingOS Registry | Internal Resource Directory</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+.registry-layout{display:grid;grid-template-columns:260px 1fr 280px;gap:14px}.resource-card{background:rgba(3,9,20,.52);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}.resource-card.high{border-left:4px solid var(--red)}.resource-card.medium{border-left:4px solid var(--yellow)}.resource-card.low{border-left:4px solid var(--green)}.resource-card.deprecated{opacity:.55}.resource-top{display:flex;gap:10px;justify-content:space-between}.resource-title{font-weight:850;color:var(--text)}.resource-meta{font-size:12px;color:var(--faint)}.badges{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.badge{font-size:10px;padding:3px 7px;border-radius:999px;background:rgba(88,199,243,.1);border:1px solid rgba(88,199,243,.25);color:#d4f2ff}.badge.risk-high{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.35);color:#ffd3d3}.badge.risk-medium{background:rgba(255,209,102,.11);border-color:rgba(255,209,102,.35);color:#ffe6a8}.badge.risk-low{background:rgba(82,210,115,.12);border-color:rgba(82,210,115,.35);color:#d5ffe0}.filter-btn{width:100%;text-align:left;margin:3px 0}.vault-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.pack-card{background:rgba(3,9,20,.52);border:1px solid var(--line);border-radius:16px;padding:14px}.hidden{display:none}@media(max-width:1100px){.registry-layout{grid-template-columns:1fr}.sticky{position:relative;top:0;max-height:none}.right-panel{display:block}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast">Done</div>
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow"><span class="dot"></span> Resource Registry</div>
+      <h1>SourcingOS Registry</h1>
+      <p>Local-first sourcing intelligence directory and search execution pack generator. Includes sourcing tools, Boolean resources, CSE/PSEs, OSINT references, technical evidence sources, contact tools, GovCon resources, AI assistants, training, and compliance warnings.</p>
+      <div class="btnrow no-print"><a class="btn secondary" href="/">← Workbench</a><button class="btn" onclick="showTab('explorer')">Registry Explorer</button><button class="btn secondary" onclick="showTab('pack')">Search Pack</button><button class="btn secondary" onclick="showTab('vault')">Vault</button><button class="btn ghost" onclick="copyHandoff()">Copy Integration Handoff</button></div>
+      <div class="row" style="margin-top:14px"><span class="pill green"><span id="registryCount">0</span> entries</span><span class="pill">Resource Vault</span><span class="pill">Boolean Engine</span><span class="pill warn">Manual use only</span></div>
+    </div>
+    <div class="hero-card">
+      <h2>Safety boundary</h2>
+      <p>This is not a scraper, bypass engine, clearance verification tool, surveillance tool, or automated outreach system. It is a local-first resource directory and manual workflow framework.</p>
+      <div class="row"><span class="pill red">No scraping bypass</span><span class="pill red">No clearance verification</span><span class="pill">Public-source research only</span></div>
+    </div>
+  </section>
+
+  <nav class="nav no-print"><a href="/">Workbench</a><a href="/registry.html">Registry</a><a href="/chat.html">ChatGPT</a><a href="/reviewer.html">Reviewer</a></nav>
+
+  <section id="tab-explorer" class="tab-section registry-layout">
+    <aside class="card sticky">
+      <h2>Filters</h2>
+      <label>Search</label><input id="searchInput" placeholder="Search resources..." oninput="applyFilters()">
+      <label style="margin-top:10px">Category</label><div id="categoryFilters"></div>
+      <label style="margin-top:10px">Risk</label><div id="riskFilters"></div>
+      <label style="margin-top:10px">Cost</label><div id="costFilters"></div>
+      <div class="check" style="margin-top:10px"><input id="hideHigh" type="checkbox" onchange="applyFilters()"><span>Hide high-risk tools</span></div>
+      <div class="check"><input id="hideDeprecated" type="checkbox" checked onchange="applyFilters()"><span>Hide deprecated</span></div>
+      <div class="check"><input id="openOnly" type="checkbox" onchange="applyFilters()"><span>Open-source only</span></div>
+      <div class="btnrow"><button class="btn secondary" onclick="clearFilters()">Clear filters</button><button class="btn ghost" onclick="exportRegistryCSV()">Export CSV</button></div>
+    </aside>
+    <main class="card">
+      <h2>Registry Explorer</h2>
+      <p>Showing <strong id="showingCount">0</strong> of <strong id="totalCount">0</strong> resources.</p>
+      <div id="cardsGrid"></div>
+    </main>
+    <aside class="card right-panel">
+      <h2>Quick stats</h2>
+      <div id="statsPanel"></div>
+      <div class="alert" style="margin-top:12px">Use high-risk automation tools only after ToS/legal review. Avoid restricted-site scraping and unnecessary candidate PII collection.</div>
+    </aside>
+  </section>
+
+  <section id="tab-pack" class="tab-section hidden">
+    <div class="grid">
+      <aside class="card sticky">
+        <h2>Search Pack Generator</h2>
+        <label>Project / req</label><input id="packProject" placeholder="Cleared DevSecOps search">
+        <label>Role title</label><input id="packTitle" placeholder="TS/SCI DevSecOps Engineer">
+        <label>Skills</label><textarea id="packSkills" placeholder="Kubernetes, Terraform, AWS GovCloud, RMF"></textarea>
+        <label>Clearance</label><select id="packClearance"><option value="">None</option><option>Public Trust</option><option>Secret</option><option>Top Secret</option><option>TS/SCI</option><option>TS/SCI + Polygraph</option></select>
+        <label>Industry</label><select id="packIndustry"><option>Tech</option><option>GovCon / Federal</option><option>Healthcare</option><option>Research / Academic</option></select>
+        <label>Location</label><input id="packLocation" placeholder="DMV, Fort Meade, Remote">
+        <label>Target companies</label><input id="packCompanies" placeholder="Booz Allen, Leidos, CACI">
+        <div class="btnrow"><button class="btn" onclick="generatePack()">Generate Pack</button><button class="btn secondary" onclick="savePack()">Save Pack</button><button class="btn ghost" onclick="exportPackMarkdown()">Export MD</button></div>
+      </aside>
+      <main class="card">
+        <h2>Execution Pack</h2>
+        <div id="packOutput" class="pack-card"><p class="small">Generate a pack to see source lanes, recommended tools, Boolean strings, X-Ray queries, and safety checklist.</p></div>
+      </main>
+    </div>
+  </section>
+
+  <section id="tab-vault" class="tab-section hidden">
+    <div class="card"><h2>Resource Vault</h2><p>Reusable sourcing templates, SOPs, and compliance checklists.</p><div id="vaultGrid" class="vault-grid"></div></div>
+    <div class="card" style="margin-top:14px"><h2>Integration Hub</h2><div class="output"><div class="box"><h3>Registry → Workbench</h3><pre>SourcingOS Registry generates resource recommendations, source lanes, strings, and risk warnings. Cleared SourcingOS Lite uses those outputs inside projects, candidates, evidence review, and outreach workflows.</pre></div><div class="box"><h3>Key rule</h3><pre>Candidate identity is global, but fit/evidence, outreach status, and pipeline stage are project-specific. Clearance terms are public breadcrumbs only, not verification.</pre></div></div></div>
+  </section>
+</div>
+<script src="/registry-data.js"></script>
+<script>
+let activeCategory='all', activeRisk='all', activeCost='all', currentPack=null;
+function $(id){return document.getElementById(id)} function toast(t='Done'){const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500)}
+function showTab(name){document.querySelectorAll('.tab-section').forEach(x=>x.classList.add('hidden'));$('tab-'+name).classList.remove('hidden')}
+function uniq(a){return [...new Set(a.filter(Boolean))]}
+function init(){ $('registryCount').textContent=REGISTRY.length; $('totalCount').textContent=REGISTRY.length; buildFilter('categoryFilters','category',uniq(REGISTRY.map(r=>r.category))); buildFilter('riskFilters','risk',uniq(REGISTRY.map(r=>r.risk))); buildFilter('costFilters','cost',uniq(REGISTRY.map(r=>r.cost))); renderVault(); applyFilters(); }
+function buildFilter(id,type,vals){$(id).innerHTML='<button class="btn small secondary filter-btn" onclick="setFilter(\''+type+'\',\'all\')">All</button>'+vals.sort().map(v=>`<button class="btn small ghost filter-btn" onclick="setFilter('${type}','${v}')">${v.replaceAll('_',' ')}</button>`).join('')}
+function setFilter(type,val){ if(type==='category') activeCategory=val; if(type==='risk') activeRisk=val; if(type==='cost') activeCost=val; applyFilters(); }
+function applyFilters(){const q=($('searchInput').value||'').toLowerCase();let rows=REGISTRY.filter(r=>{if($('hideHigh').checked&&r.risk==='high')return false;if($('hideDeprecated').checked&&r.status==='deprecated')return false;if($('openOnly').checked&&r.cost!=='open_source')return false;if(activeCategory!=='all'&&r.category!==activeCategory)return false;if(activeRisk!=='all'&&r.risk!==activeRisk)return false;if(activeCost!=='all'&&r.cost!==activeCost)return false;const hay=[r.name,r.source,r.category,r.lane,r.cost,r.risk,r.best,(r.tags||[]).join(' ')].join(' ').toLowerCase();return !q||hay.includes(q)});$('showingCount').textContent=rows.length;renderCards(rows);renderStats(rows)}
+function renderCards(rows){$('cardsGrid').innerHTML=rows.map(r=>`<article class="resource-card ${r.risk} ${r.status==='deprecated'?'deprecated':''}"><div class="resource-top"><div><div class="resource-title">${esc(r.name)}</div><div class="resource-meta">${esc(r.source)} · ${esc(r.category.replaceAll('_',' '))}</div></div><a class="btn small secondary" href="${r.url}" target="_blank" rel="noopener">Open</a></div><div class="badges"><span class="badge">${esc(r.cost)}</span><span class="badge risk-${r.risk}">${esc(r.risk)} risk</span><span class="badge">${esc(r.lane)}</span><span class="badge">${esc(r.status)}</span></div><p>${esc(r.best)}</p><p class="small">${esc(r.notes||'')}</p><div class="badges">${(r.tags||[]).map(t=>`<span class="badge">${esc(t)}</span>`).join('')}</div></article>`).join('')||'<p class="small">No resources match this filter.</p>'}
+function renderStats(rows){const byCat={};rows.forEach(r=>byCat[r.category]=(byCat[r.category]||0)+1);$('statsPanel').innerHTML=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="metric"><strong>${k.replaceAll('_',' ')}</strong><span>${v}</span></div>`).join('')}
+function clearFilters(){activeCategory=activeRisk=activeCost='all';$('searchInput').value='';$('hideHigh').checked=false;$('hideDeprecated').checked=true;$('openOnly').checked=false;applyFilters()}
+function generatePack(){const title=$('packTitle').value||'Untitled role';const skills=$('packSkills').value.split(/[,\n]/).map(x=>x.trim()).filter(Boolean);const clearance=$('packClearance').value;const industry=$('packIndustry').value;const location=$('packLocation').value;const companies=$('packCompanies').value.split(',').map(x=>x.trim()).filter(Boolean);const recommended=REGISTRY.filter(r=>{if(clearance&&['govcon','cse_pse','boolean_logic','contact_discovery','ai_assistant','training'].includes(r.category))return r.risk!=='high';if(industry.includes('Healthcare'))return ['healthcare','cse_pse','boolean_logic','contact_discovery','training'].includes(r.category)&&r.risk!=='high';if(industry.includes('Research'))return ['academic','github','cse_pse','boolean_logic','training'].includes(r.category)&&r.risk!=='high';return ['github','cse_pse','boolean_logic','contact_discovery','training','ai_assistant'].includes(r.category)&&r.risk!=='high'}).slice(0,12);const bool=`("${title}" OR "${title.replace(/Engineer/i,'Developer')}" OR "${title.replace(/Engineer/i,'Specialist')}") AND (${skills.map(s=>'"'+s+'"').join(' OR ')||'"skill"'})${clearance?' AND ("'+clearance+'" OR "security clearance" OR "cleared")':''}${companies.length?' AND ('+companies.map(c=>'"'+c+'"').join(' OR ')+')':''}`;const xray='site:linkedin.com/in '+bool;currentPack={project:$('packProject').value,title,skills,clearance,industry,location,companies,recommended,bool,xray,generated:new Date().toISOString()};$('packOutput').innerHTML=`<h3>${esc(title)}</h3><p class="small">Generated ${new Date().toLocaleString()}</p><div class="alert">Clearance terms are search breadcrumbs only, not verified clearance status.</div><h3>Recommended source lanes</h3>${recommended.map(r=>`<div class="pack-card"><strong>${esc(r.name)}</strong><p class="small">${esc(r.best)}</p></div>`).join('')}<h3>Boolean</h3><pre>${esc(bool)}</pre><h3>Google X-Ray</h3><pre>${esc(xray)}</pre><h3>Compliance checklist</h3><pre>[ ] Legitimate business purpose confirmed\n[ ] Platform ToS reviewed\n[ ] Public-source/manual workflow only\n[ ] Candidate identity verified manually before outreach\n[ ] Clearance terms treated as breadcrumbs only\n[ ] No sensitive PII stored in this tool</pre>`}
+function savePack(){if(!currentPack){toast('Generate a pack first');return}const packs=JSON.parse(localStorage.getItem('sourcingos_registry_packs')||'[]');packs.unshift(currentPack);localStorage.setItem('sourcingos_registry_packs',JSON.stringify(packs.slice(0,20)));toast('Pack saved locally')}
+function exportPackMarkdown(){if(!currentPack){toast('Generate a pack first');return}download('SourcingOS_Execution_Pack.md','text/markdown',`# SourcingOS Registry — Execution Pack\n\n**Role:** ${currentPack.title}\n**Project:** ${currentPack.project||'Unassigned'}\n**Generated:** ${currentPack.generated}\n\n## Boolean\n${currentPack.bool}\n\n## X-Ray\n${currentPack.xray}\n\n## Recommended Tools\n${currentPack.recommended.map(r=>'- '+r.name+': '+r.best).join('\n')}\n\n## Compliance\n- Clearance terms are breadcrumbs only, not verification.\n- Manual source use only.\n- Review platform ToS.\n- No sensitive PII storage.`)}
+function exportRegistryCSV(){const rows=[['ID','Name','Source','URL','Category','Lane','Cost','Risk','Status','Best For','Tags'],...REGISTRY.map(r=>[r.id,r.name,r.source,r.url,r.category,r.lane,r.cost,r.risk,r.status,r.best,(r.tags||[]).join(';')])];download('SourcingOS_Registry.csv','text/csv',rows.map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n'))}
+function renderVault(){$('vaultGrid').innerHTML=RESOURCE_VAULT.map((v,i)=>`<div class="pack-card"><span class="badge">${i+1}</span><h3>${esc(v.name)}</h3><p class="small">${esc(v.type)}</p><p>${esc(v.desc)}</p></div>`).join('')}
+function copyHandoff(){const text=`SourcingOS Integration Handoff\n\nSourcingOS Registry is the sourcing intelligence layer.\nCleared SourcingOS Lite is the specialist cleared/federal workbench.\n\nIntegration flow:\n1. Registry generates resource recommendations, source lanes, strings, and risk warnings.\n2. Cleared SourcingOS Lite imports those ideas into a project workspace.\n3. Candidate evidence, notes, outreach, and pipeline state remain project-scoped.\n\nKey rule:\nCandidate identity is global, but fit/evidence, outreach status, and pipeline stage are project-specific. Clearance terms are public breadcrumbs only, not verification.`;navigator.clipboard.writeText(text);toast('Handoff copied')}
+function download(name,type,content){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}function esc(s){return String(s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
