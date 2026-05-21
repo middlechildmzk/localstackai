@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SourcingOS Talent Search</title>
-<meta name="description" content="A daily sourcing command center for building platform searches, reviewing profile evidence, drafting outreach, and managing project memory.">
+<meta name="description" content="A daily sourcing command center for building platform searches, reviewing live public-source evidence, drafting outreach, and managing project memory.">
 <link rel="stylesheet" href="/talent-search.css">
 </head>
 <body>
@@ -27,7 +27,7 @@
     </div>
     <div class="sidebar-card muted-card">
       <strong>Daily rule</strong>
-      <p>Use SourcingOS to think, search, summarize, and draft. Run searches and send outreach inside LinkedIn, ClearanceJobs, Indeed, Avature, or approved tools.</p>
+      <p>Use SourcingOS to think, search, summarize, and draft. Run restricted-platform searches and outreach inside LinkedIn, ClearanceJobs, Indeed, Avature, or approved tools.</p>
     </div>
   </aside>
 
@@ -60,7 +60,7 @@
 
       <section class="center-panel">
         <div class="source-toggle card">
-          <div class="section-title"><span>Sources to build for</span><button class="linkbtn" onclick="buildSearches()">Regenerate</button></div>
+          <div class="section-title"><span>Platform searches to build</span><button class="linkbtn" onclick="buildSearches()">Regenerate</button></div>
           <div class="toggles">
             <label><input type="checkbox" class="sourceBox" value="linkedin" checked> LinkedIn Recruiter</label>
             <label><input type="checkbox" class="sourceBox" value="clearancejobs" checked> ClearanceJobs</label>
@@ -75,7 +75,7 @@
 
         <div class="card" id="candidates">
           <div class="section-title"><span>Profile evidence cards</span><button class="linkbtn" onclick="reviewProfile()">Review pasted profile</button></div>
-          <div id="candidateCards" class="candidate-list"><div class="empty-state">Paste profile/resume text into the command bar and click <strong>Review Profile</strong>.</div></div>
+          <div id="candidateCards" class="candidate-list"><div class="empty-state">Paste profile/resume text into the command bar and click <strong>Review Profile</strong>. Or use <strong>Review as Candidate</strong> from a live source result above.</div></div>
         </div>
       </section>
 
@@ -100,5 +100,6 @@
 </div>
 <script src="/talent-search.js"></script>
 <script src="/talent-overrides.js"></script>
+<script src="/live-source-runner.js"></script>
 </body>
 </html>
