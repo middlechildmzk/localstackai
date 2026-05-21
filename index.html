@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SourcingOS Talent Search</title>
-<meta name="description" content="A daily sourcing command center for building platform searches, reviewing live public-source evidence, drafting outreach, and managing project memory.">
+<title>SourcingOS Talent Search 14.5</title>
+<meta name="description" content="A daily sourcing command center for building platform searches, reviewing live public-source evidence, drafting outreach, managing candidate pipeline, and preserving project memory.">
 <link rel="stylesheet" href="/talent-search.css">
+<link rel="stylesheet" href="/sourcingos-14-5.css">
 </head>
 <body>
 <div id="toast" class="toast">Done</div>
 <div class="app-shell">
   <aside class="sidebar">
-    <div class="brand"><div class="logo-dot"></div><div><strong>SourcingOS</strong><span>Talent Search</span></div></div>
+    <div class="brand"><div class="logo-dot"></div><div><strong>SourcingOS</strong><span>Talent Search 14.5</span></div></div>
     <nav>
       <a class="active" href="/">Talent Search</a>
       <a href="/projects.html">Projects</a>
@@ -33,12 +34,12 @@
 
   <main class="main">
     <header class="topbar">
-      <div><div class="eyebrow">Daily sourcing cockpit</div><h1>What are you sourcing today?</h1></div>
+      <div><div class="eyebrow">Daily sourcing cockpit · unified 14.5 state</div><h1>What are you sourcing today?</h1></div>
       <div class="top-actions"><a class="btn secondary" href="/projects.html">Project workspace</a><a class="btn secondary" href="/registry.html">Source library</a></div>
     </header>
 
     <section class="command-card">
-      <textarea id="commandInput" placeholder="Describe the role, paste a JD, paste a profile, or paste Boolean…"></textarea>
+      <textarea id="commandInput" placeholder="Describe the role, paste a JD, paste a redacted profile, or paste Boolean…"></textarea>
       <div class="command-footer">
         <div id="intentChip" class="intent-chip">Intent: waiting for input</div>
         <div class="btnrow"><button class="btn" onclick="handleCommand()">Run SourcingOS</button><button class="btn secondary" onclick="buildSearches()">Build Searches</button><button class="btn ghost" onclick="reviewProfile()">Review Profile</button></div>
@@ -74,8 +75,8 @@
         <div id="searchCards" class="cards-grid"></div>
 
         <div class="card" id="candidates">
-          <div class="section-title"><span>Profile evidence cards</span><button class="linkbtn" onclick="reviewProfile()">Review pasted profile</button></div>
-          <div id="candidateCards" class="candidate-list"><div class="empty-state">Paste profile/resume text into the command bar and click <strong>Review Profile</strong>. Or use <strong>Review as Candidate</strong> from a live source result above.</div></div>
+          <div class="section-title"><span>Candidate leads reviewed</span><button class="linkbtn" onclick="reviewProfile()">Review pasted profile</button></div>
+          <div id="candidateCards" class="candidate-list"><div class="empty-state">Paste redacted profile/resume text into the command bar and click <strong>Review Profile</strong>. Or use <strong>Review as Candidate</strong> from a public-source candidate lead above.</div></div>
         </div>
       </section>
 
@@ -99,7 +100,7 @@
   </main>
 </div>
 <script src="/talent-search.js"></script>
-<script src="/talent-overrides.js"></script>
+<script src="/sourcingos-14-5.js"></script>
 <script src="/live-source-runner.js"></script>
 </body>
 </html>
