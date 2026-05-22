@@ -1,0 +1,73 @@
+services:
+  - type: web
+    name: siw-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: siw-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: siw-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: siw-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: siw-redis
+          property: connectionString
+      - key: OPENSEARCH_URL
+        value: http://localhost:9200
+      - key: LOG_LEVEL
+        value: INFO
+
+  - type: worker
+    name: siw-worker
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    startCommand: celery -A app.tasks.worker.celery_app worker --loglevel=info --queues=ingestion --concurrency=2 --max-tasks-per-child=100
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: siw-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: siw-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: siw-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: siw-redis
+          property: connectionString
+      - key: OPENSEARCH_URL
+        value: http://localhost:9200
+      - key: LOG_LEVEL
+        value: INFO
+
+  - type: redis
+    name: siw-redis
+    plan: starter
+    ipAllowList: []
+
+databases:
+  - name: siw-postgres
+    plan: starter
