@@ -42,6 +42,68 @@ def _stable_payload_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode('utf-8')).hexdigest()
 
 
+def _is_generic_source_record(payload: dict[str, Any]) -> bool:
+    return bool(payload.get('source_name') and payload.get('source_user_id') and payload.get('full_name'))
+
+
+def _profile_from_generic_record(payload: dict[str, Any]):
+    from ..ingestion import NormalizedProfile
+
+    return NormalizedProfile(
+        source_name=str(payload['source_name']),
+        source_user_id=str(payload['source_user_id']),
+        full_name=str(payload['full_name']),
+        location=payload.get('location'),
+        profile_url=payload.get('profile_url'),
+        username_handle=payload.get('username_handle'),
+        bio_summary=payload.get('bio_summary') or payload.get('headline'),
+        extracted_skills=[str(s).strip().lower() for s in payload.get('extracted_skills', []) if str(s).strip()],
+        raw_payload=payload.get('raw_payload') if isinstance(payload.get('raw_payload'), dict) else payload,
+    )
+
+
+def _apply_source_handles(candidate: Any, profile: Any) -> None:
+    handle = profile.username_handle
+    if not handle:
+        return
+    mapping = {
+        'github': 'github_handle',
+        'gitlab': 'gitlab_handle',
+        'kaggle': 'kaggle_handle',
+        'codeforces': 'codeforces_handle',
+        'mastodon': 'mastodon_handle',
+        'devto': 'devto_handle',
+        'orcid': 'orcid_id',
+        'semanticscholar': 'scholar_id',
+    }
+    field = mapping.get(profile.source_name)
+    if field and hasattr(candidate, field):
+        setattr(candidate, field, handle)
+
+
+def _write_optional_enrichment_tables(db: Any, models: Any, candidate_id: Any, payload: dict[str, Any], source_name: str) -> None:
+    for signal in payload.get('signals', []) if isinstance(payload.get('signals'), list) else []:
+        signal_type = str(signal.get('signal_type') or signal.get('type') or '').strip()
+        signal_value = str(signal.get('signal_value') or signal.get('value') or '').strip()
+        if signal_type and signal_value and hasattr(models, 'CandidateSignal'):
+            db.add(models.CandidateSignal(candidate_id=candidate_id, signal_type=signal_type, signal_value=signal_value, signal_source=source_name))
+
+    for pub in payload.get('publications', []) if isinstance(payload.get('publications'), list) else []:
+        title = str(pub.get('title') or '').strip()
+        if title and hasattr(models, 'CandidatePublication'):
+            db.add(models.CandidatePublication(
+                candidate_id=candidate_id,
+                title=title,
+                doi=pub.get('doi'),
+                publication_year=pub.get('publication_year'),
+                citation_count=pub.get('citation_count') or 0,
+                source_name=pub.get('source_name') or source_name,
+                source_url=pub.get('source_url'),
+                co_authors=pub.get('co_authors') or [],
+                topics=pub.get('topics') or [],
+            ))
+
+
 @celery_app.task(
     bind=True,
     name='sourcing.tasks.orchestrate_ingestion_pipeline',
@@ -51,7 +113,7 @@ def _stable_payload_hash(payload: dict[str, Any]) -> str:
 )
 def orchestrate_ingestion_pipeline(self, raw_payload_dict: dict[str, Any]) -> str:  # type: ignore[no-untyped-def]
     task_id = self.request.id or 'local'
-    source_user_id = str(raw_payload_dict.get('login') or raw_payload_dict.get('id') or 'unknown')
+    source_user_id = str(raw_payload_dict.get('source_user_id') or raw_payload_dict.get('login') or raw_payload_dict.get('id') or 'unknown')
     logger.info('[%s] Ingestion pipeline starting for source_user_id=%s', task_id, source_user_id)
 
     from .. import models
@@ -62,10 +124,13 @@ def orchestrate_ingestion_pipeline(self, raw_payload_dict: dict[str, Any]) -> st
 
     db = SessionFactory()
     try:
-        enricher = LocalInferenceEnricher(ollama_endpoint=settings.OLLAMA_ENDPOINT)
-        profile = _run_async(GitHubSourceNormalizer.process_transform(raw_payload_dict, enricher))
-        payload_hash = _stable_payload_hash(raw_payload_dict)
+        if _is_generic_source_record(raw_payload_dict):
+            profile = _profile_from_generic_record(raw_payload_dict)
+        else:
+            enricher = LocalInferenceEnricher(ollama_endpoint=settings.OLLAMA_ENDPOINT)
+            profile = _run_async(GitHubSourceNormalizer.process_transform(raw_payload_dict, enricher))
 
+        payload_hash = _stable_payload_hash(raw_payload_dict)
         existing_source = (
             db.query(models.CandidateSource)
             .filter(
@@ -89,7 +154,8 @@ def orchestrate_ingestion_pipeline(self, raw_payload_dict: dict[str, Any]) -> st
                 candidate.canonical_name = profile.full_name or candidate.canonical_name
                 candidate.primary_location = profile.location or candidate.primary_location
                 candidate.summary_bio = profile.bio_summary or candidate.summary_bio
-            logger.info('[%s] Updated existing source for candidate=%s', task_id, candidate_id)
+                candidate.headline = profile.bio_summary[:250] if profile.bio_summary else candidate.headline
+                _apply_source_handles(candidate, profile)
         else:
             candidate = models.Candidate(
                 canonical_name=profile.full_name,
@@ -97,6 +163,7 @@ def orchestrate_ingestion_pipeline(self, raw_payload_dict: dict[str, Any]) -> st
                 summary_bio=profile.bio_summary,
                 headline=profile.bio_summary[:250] if profile.bio_summary else None,
             )
+            _apply_source_handles(candidate, profile)
             db.add(candidate)
             db.flush()
             db.add(models.CandidateSource(
@@ -109,7 +176,6 @@ def orchestrate_ingestion_pipeline(self, raw_payload_dict: dict[str, Any]) -> st
                 payload_hash=payload_hash,
             ))
             candidate_id = candidate.id
-            logger.info('[%s] Created candidate=%s', task_id, candidate_id)
 
         for raw_skill in profile.extracted_skills:
             skill_tag = raw_skill.strip().lower()
@@ -125,14 +191,9 @@ def orchestrate_ingestion_pipeline(self, raw_payload_dict: dict[str, Any]) -> st
                 .first()
             )
             if not exists:
-                db.add(models.CandidateSkill(
-                    candidate_id=candidate_id,
-                    skill_name=skill_tag,
-                    source_name=profile.source_name,
-                    confidence_score=0.85,
-                    extracted_by='llm_inference',
-                ))
+                db.add(models.CandidateSkill(candidate_id=candidate_id, skill_name=skill_tag, source_name=profile.source_name, confidence_score=0.85, extracted_by='source_record' if _is_generic_source_record(raw_payload_dict) else 'llm_inference'))
 
+        _write_optional_enrichment_tables(db, models, candidate_id, raw_payload_dict, profile.source_name)
         db.commit()
 
         candidate = db.query(models.Candidate).filter(models.Candidate.id == candidate_id).first()
