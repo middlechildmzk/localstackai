@@ -82,9 +82,10 @@
             <button class="small-btn primary" onclick="SourcingOSBackend.testBackend()">Connect</button>
             <button class="small-btn" onclick="SourcingOSBackend.loadBackendCandidates()">Load DB</button>
             <button class="small-btn" onclick="SourcingOSBackend.searchBackend()">Search Role</button>
+            <button class="small-btn" onclick="SourcingOSImport.importCommandTextToBackend()">Import Text</button>
             <button class="small-btn" onclick="SourcingOSBackend.openBackendViewer()">Open DB</button>
           </div>
-          <p class="subtle">Connects this UI to the FastAPI/Postgres/OpenSearch backend when running locally or deployed. If offline, the rest of SourcingOS still works.</p>
+          <p class="subtle">Connects this UI to the FastAPI/Postgres/OpenSearch backend when running locally or deployed. If offline, the rest of SourcingOS still works. Import Text queues approved profile/resume text from the command box.</p>
           <div id="siwBackendResults" class="siw-backend-results"><div class="empty-state">Set the API URL, then click Connect. Local default: <strong>http://localhost:8000</strong>.</div></div>
         </div>
 
@@ -117,5 +118,6 @@
 <script src="/talent-overrides.js"></script>
 <script src="/live-source-runner.js"></script>
 <script src="/siw-backend-bridge.js"></script>
+<script src="/siw-import-bridge.js"></script>
 </body>
 </html>
