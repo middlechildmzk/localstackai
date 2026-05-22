@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sourcing Intelligence Workspace Preview</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07111f; --card:#0d1a2e; --line:rgba(255,255,255,.12); --text:#eaf3ff; --muted:#9aa8bc; --blue:#6aa9ff; --green:#79e2a6; --amber:#ffd166; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at top left, #132743 0, #07111f 42%, #040914 100%); color:var(--text); }
+    .wrap { max-width:1120px; margin:0 auto; padding:24px 16px 48px; }
+    .hero { border:1px solid var(--line); background:linear-gradient(135deg, rgba(13,26,46,.94), rgba(10,18,33,.92)); border-radius:24px; padding:22px; box-shadow:0 20px 60px rgba(0,0,0,.35); }
+    .eyebrow { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-size:12px; font-weight:800; }
+    h1 { font-size:30px; line-height:1.05; margin:10px 0 10px; }
+    p { color:var(--muted); line-height:1.55; }
+    .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:14px; }
+    .card { border:1px solid var(--line); background:rgba(13,26,46,.82); border-radius:18px; padding:16px; }
+    .card h3 { margin:0 0 8px; font-size:16px; }
+    .badge { display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(106,169,255,.28); color:#cfe5ff; border-radius:999px; padding:5px 9px; font-size:12px; margin:3px 4px 3px 0; background:rgba(106,169,255,.08); }
+    .good { border-color:rgba(121,226,166,.32); color:#ceffdf; background:rgba(121,226,166,.08); }
+    .warn { border-color:rgba(255,209,102,.32); color:#ffe7a6; background:rgba(255,209,102,.08); }
+    .section { margin-top:16px; }
+    .candidate { display:grid; grid-template-columns: 1.2fr .8fr; gap:12px; }
+    .small { font-size:13px; }
+    a { color:var(--blue); text-decoration:none; }
+    code { background:#101d31; border:1px solid var(--line); padding:2px 5px; border-radius:6px; }
+    .links { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .btn { display:inline-block; padding:10px 12px; border-radius:12px; background:#245cff; color:white; font-weight:800; }
+    .btn.secondary { background:#111d31; border:1px solid var(--line); color:#d8e7ff; }
+    @media (max-width: 780px) { .grid, .candidate { grid-template-columns: 1fr; } h1 { font-size:25px; } .wrap { padding:14px 12px 32px; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">SourcingOS Backend Preview</div>
+      <h1>Sourcing Intelligence Workspace</h1>
+      <p>This is the phone-openable preview shell for the backend branch. The real database/API stack uses Docker, FastAPI, Postgres, Redis, OpenSearch, and Celery. Vercel can show this preview page, but it cannot run the full local database stack by itself.</p>
+      <div class="links">
+        <a class="btn" href="https://github.com/middlechildmzk/localstackai/pull/2" target="_blank" rel="noreferrer">Open PR</a>
+        <a class="btn secondary" href="/">Open current app</a>
+      </div>
+    </section>
+
+    <section class="grid section">
+      <div class="card"><h3>Implemented Core</h3><p class="small">FastAPI routes, Docker Compose, Postgres schema, OpenSearch indexer, Celery worker, Redis queue, source contract, batch ingestion, seed records, and compliance erasure flow.</p></div>
+      <div class="card"><h3>Research Layer</h3><p class="small">API v1 scaffold for identities, sources, explainable role scores, provenance, feedback, research summary, observability, and skill graph queries.</p></div>
+      <div class="card"><h3>Safety Boundary</h3><p class="small">No restricted-platform scraping. No auto-outreach. No protected-trait inference. Public or user-approved records only. Erasure workflow included.</p></div>
+    </section>
+
+    <section class="card section candidate">
+      <div>
+        <h3>Sample Enriched Candidate Record</h3>
+        <p><strong>Jordan Martinez</strong><br><span class="small">DevSecOps / security automation profile, demo data only</span></p>
+        <span class="badge good">Kubernetes</span><span class="badge good">Terraform</span><span class="badge good">AWS GovCloud</span><span class="badge good">RMF</span><span class="badge good">Python</span><span class="badge">GitHub</span><span class="badge">ORCID</span><span class="badge">npm</span>
+      </div>
+      <div>
+        <h3>Role Score Example</h3>
+        <p class="small">DevOps Engineer: <strong>82.5</strong><br>Security Engineer: <strong>76.0</strong><br>AI Researcher: <strong>41.0</strong></p>
+        <span class="badge warn">Explainable signal, not hiring decision</span>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h3>What to run locally later</h3>
+      <p class="small">When you are back on a computer, the real database viewer is available after running:</p>
+      <p class="small"><code>docker compose up -d postgres redis opensearch ollama</code></p>
+      <p class="small"><code>docker compose up -d api worker</code></p>
+      <p class="small"><code>python scripts/seed_public_records.py</code></p>
+      <p class="small">Then open <code>http://localhost:8000/db/view</code>.</p>
+    </section>
+  </main>
+</body>
+</html>
