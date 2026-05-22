@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Candidate Profile Upload | Sourcing Intelligence Workspace</title>
+  <style>
+    :root{--bg:#07111f;--card:#0d1a2e;--line:rgba(255,255,255,.14);--text:#eaf3ff;--muted:#9aa8bc;--blue:#4f7cff;--green:#43d18b;--red:#ff6b7a}*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:linear-gradient(135deg,#07111f,#0a1630 55%,#07111f);color:var(--text);padding:24px}.wrap{max-width:880px;margin:0 auto}.card{background:rgba(13,26,46,.9);border:1px solid var(--line);border-radius:22px;padding:22px;margin:16px 0;box-shadow:0 20px 80px rgba(0,0,0,.28)}h1{font-size:clamp(30px,6vw,54px);line-height:1;margin:0 0 12px}p{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:720px){.grid{grid-template-columns:1fr}}label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#b8c7dc;font-weight:800;margin:12px 0 6px}input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#0a1425;color:var(--text);padding:12px;font:inherit}textarea{min-height:180px;resize:vertical}.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0}.check input{width:auto;margin-top:4px}.btn{border:0;border-radius:12px;padding:13px 16px;background:var(--blue);color:white;font-weight:800;cursor:pointer}.btn:disabled{opacity:.5;cursor:not-allowed}.notice{border-left:4px solid var(--green);background:rgba(67,209,139,.08);padding:12px;border-radius:12px}.warn{border-left-color:#ffcc66;background:rgba(255,204,102,.08)}pre{white-space:pre-wrap;background:#06101d;border:1px solid var(--line);border-radius:14px;padding:14px;color:#dfefff;overflow:auto}.small{font-size:13px}.toplinks a{color:#9fd0ff;margin-right:12px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="toplinks small"><a href="/">SourcingOS</a><a href="/siw-preview.html">SIW Preview</a></div>
+    <section class="card">
+      <h1>Share your profile</h1>
+      <p>This page lets a candidate or authorized reviewer submit profile or resume text into the Sourcing Intelligence Workspace. Data is only accepted with consent. Security-clearance language is treated as an unverified breadcrumb only and must be verified through the approved hiring process.</p>
+      <div class="notice warn small"><strong>Privacy note:</strong> only submit your own profile/resume or data you are authorized to process. Do not submit private third-party information without permission.</div>
+    </section>
+
+    <form class="card" id="form">
+      <div class="grid">
+        <div><label>Full name</label><input id="fullName" autocomplete="name"></div>
+        <div><label>Email</label><input id="email" type="email" autocomplete="email"></div>
+        <div><label>Location</label><input id="location" placeholder="Washington DC, Arlington VA, Remote US"></div>
+        <div><label>Desired roles</label><input id="desiredRoles" placeholder="DevOps Engineer, Platform Engineer"></div>
+        <div><label>LinkedIn URL (optional)</label><input id="linkedinUrl" placeholder="https://www.linkedin.com/in/..." inputmode="url"></div>
+        <div><label>GitHub URL (optional)</label><input id="githubUrl" placeholder="https://github.com/..." inputmode="url"></div>
+      </div>
+      <label>Resume or profile text</label>
+      <textarea id="resumeText" required placeholder="Paste resume/profile text here. Please remove anything you do not want stored."></textarea>
+      <div class="check"><input id="consentStore" type="checkbox" required><span>I consent to storing and processing this profile information for recruiting/sourcing review.</span></div>
+      <div class="check"><input id="consentContact" type="checkbox"><span>I consent to being contacted about relevant roles. I can opt out later.</span></div>
+      <button class="btn" id="submitBtn" type="submit">Submit profile</button>
+    </form>
+
+    <section class="card">
+      <h2>API connection</h2>
+      <p class="small">Set this to your hosted backend when deployed. For local Docker, use <code>http://localhost:8000</code>.</p>
+      <input id="apiBase" value="http://localhost:8000">
+    </section>
+
+    <section class="card"><h2>Result</h2><pre id="result">Waiting for submission...</pre></section>
+  </main>
+  <script>
+    const $=id=>document.getElementById(id);
+    $('apiBase').value=localStorage.getItem('siw_api_base')||'http://localhost:8000';
+    $('apiBase').oninput=()=>localStorage.setItem('siw_api_base',$('apiBase').value.trim());
+    $('form').onsubmit=async(e)=>{
+      e.preventDefault();
+      $('submitBtn').disabled=true;
+      $('result').textContent='Submitting...';
+      const payload={
+        full_name:$('fullName').value.trim()||null,
+        email:$('email').value.trim()||null,
+        linkedin_url:$('linkedinUrl').value.trim()||null,
+        github_url:$('githubUrl').value.trim()||null,
+        location:$('location').value.trim()||null,
+        desired_roles:$('desiredRoles').value.split(/[,;]/).map(x=>x.trim()).filter(Boolean),
+        resume_text:$('resumeText').value,
+        consent_to_store:$('consentStore').checked,
+        consent_to_contact:$('consentContact').checked,
+        queue:true
+      };
+      try{
+        const r=await fetch($('apiBase').value.replace(/\/$/,'')+'/growth/candidate-upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        const txt=await r.text();
+        $('result').textContent=txt;
+      }catch(err){$('result').textContent='Submission failed: '+err.message}
+      finally{$('submitBtn').disabled=false;}
+    };
+  </script>
+</body>
+</html>
