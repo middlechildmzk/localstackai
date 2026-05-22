@@ -38,6 +38,7 @@ class Candidate(Base):
     experiences = relationship('CandidateExperience', back_populates='candidate', cascade='all, delete-orphan')
     signals = relationship('CandidateSignal', back_populates='candidate', cascade='all, delete-orphan')
     publications = relationship('CandidatePublication', back_populates='candidate', cascade='all, delete-orphan')
+    role_scores = relationship('RoleScore', back_populates='candidate', cascade='all, delete-orphan')
 
 
 class CandidateSource(Base):
@@ -118,6 +119,85 @@ class CandidatePublication(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
 
     candidate = relationship('Candidate', back_populates='publications')
+
+
+class RoleScore(Base):
+    __tablename__ = 'role_scores'
+    __table_args__ = (UniqueConstraint('candidate_id', 'role_key', name='uq_role_score_candidate_role'),)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'), nullable=False)
+    role_key = Column(String, nullable=False)
+    score = Column(Numeric(5, 2), nullable=False)
+    explanation = Column(JSONB, nullable=False, default=dict)
+    computed_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+    candidate = relationship('Candidate', back_populates='role_scores')
+
+
+class ProvenanceEvent(Base):
+    __tablename__ = 'provenance_events'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'))
+    source_name = Column(String, nullable=False)
+    event_type = Column(String, nullable=False)
+    evidence_url = Column(String)
+    evidence_hash = Column(String(64))
+    license_label = Column(String)
+    payload = Column(JSONB, nullable=False, default=dict)
+    captured_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+
+class IdentityEdge(Base):
+    __tablename__ = 'identity_edges'
+    __table_args__ = (UniqueConstraint('from_candidate_id', 'to_candidate_id', 'edge_type', name='uq_identity_edge'),)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    from_candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'), nullable=False)
+    to_candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'), nullable=False)
+    edge_type = Column(String, nullable=False)
+    confidence_score = Column(Numeric(4, 3), nullable=False, default=0.500)
+    evidence = Column(JSONB, nullable=False, default=dict)
+    created_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+
+class EmbeddingJob(Base):
+    __tablename__ = 'embedding_jobs'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'))
+    object_type = Column(String, nullable=False)
+    object_id = Column(String)
+    text_hash = Column(String(64), nullable=False)
+    embedding_model = Column(String, nullable=False)
+    status = Column(String, nullable=False, default='queued')
+    error_message = Column(Text)
+    created_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), onupdate=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+
+class AdapterHealthEvent(Base):
+    __tablename__ = 'adapter_health_events'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_name = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    latency_ms = Column(Integer)
+    error_message = Column(Text)
+    captured_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+
+class ReviewerFeedback(Base):
+    __tablename__ = 'reviewer_feedback'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'))
+    feedback_type = Column(String, nullable=False)
+    feedback_value = Column(String, nullable=False)
+    role_key = Column(String)
+    notes = Column(Text)
+    created_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
 
 
 class SourceSyncState(Base):
