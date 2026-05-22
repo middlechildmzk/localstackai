@@ -17,6 +17,7 @@
       <a href="/projects.html">Projects</a>
       <a href="#candidates">Candidates</a>
       <a href="/registry.html">Sources</a>
+      <a href="#backend">SIW Backend</a>
       <a href="#outreach">Outreach</a>
       <a href="#copilot">Copilot</a>
     </nav>
@@ -73,6 +74,20 @@
 
         <div id="searchCards" class="cards-grid"></div>
 
+        <div class="card" id="backend">
+          <div class="section-title"><span>SIW Backend Data</span><span id="siwBackendStatus" class="backend-status"><span class="badge warn">Not checked</span></span></div>
+          <label>Backend API base URL</label>
+          <div class="siw-api-row">
+            <input id="siwApiBase" placeholder="http://localhost:8000">
+            <button class="small-btn primary" onclick="SourcingOSBackend.testBackend()">Connect</button>
+            <button class="small-btn" onclick="SourcingOSBackend.loadBackendCandidates()">Load DB</button>
+            <button class="small-btn" onclick="SourcingOSBackend.searchBackend()">Search Role</button>
+            <button class="small-btn" onclick="SourcingOSBackend.openBackendViewer()">Open DB</button>
+          </div>
+          <p class="subtle">Connects this UI to the FastAPI/Postgres/OpenSearch backend when running locally or deployed. If offline, the rest of SourcingOS still works.</p>
+          <div id="siwBackendResults" class="siw-backend-results"><div class="empty-state">Set the API URL, then click Connect. Local default: <strong>http://localhost:8000</strong>.</div></div>
+        </div>
+
         <div class="card" id="candidates">
           <div class="section-title"><span>Profile evidence cards</span><button class="linkbtn" onclick="reviewProfile()">Review pasted profile</button></div>
           <div id="candidateCards" class="candidate-list"><div class="empty-state">Paste profile/resume text into the command bar and click <strong>Review Profile</strong>. Or use <strong>Review as Candidate</strong> from a live source result above.</div></div>
@@ -101,5 +116,6 @@
 <script src="/talent-search.js"></script>
 <script src="/talent-overrides.js"></script>
 <script src="/live-source-runner.js"></script>
+<script src="/siw-backend-bridge.js"></script>
 </body>
 </html>
