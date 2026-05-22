@@ -15,6 +15,7 @@ from .config import settings
 from .db import get_db, verify_database_connection
 from .importers import import_records_from_text_blocks, import_text_to_record
 from .search import indexer
+from .services.public_candidate_sweep import PublicCandidateSweepRunner, SweepRequest, default_dc_devops_request
 from .sources.registry import registry_as_dicts
 from .tasks.compliance import execute_hard_erasure_workflow
 from .tasks.worker import orchestrate_ingestion_pipeline
@@ -101,6 +102,18 @@ class ImportBlocksRequest(BaseModel):
     queue: bool = True
 
 
+class PublicSweepRequest(BaseModel):
+    role: str = 'Senior DevOps Engineer'
+    location_cluster: list[str] = Field(default_factory=lambda: ['Washington DC', 'Arlington VA', 'Alexandria VA', 'Reston VA', 'Chantilly VA', 'Fort Meade MD'])
+    skills: list[str] = Field(default_factory=lambda: ['kubernetes', 'terraform', 'aws', 'govcloud', 'ci/cd', 'devsecops'])
+    clearance_target: Optional[str] = 'TS/SCI'
+    max_per_source: int = Field(10, ge=1, le=50)
+    dry_run: bool = True
+    include_github: bool = True
+    include_resume_text_blocks: bool = False
+    resume_text_blocks: list[str] = Field(default_factory=list)
+
+
 class EraseRequest(BaseModel):
     email: EmailStr = Field(..., description='Target email address for GDPR hard erasure.')
 
@@ -179,6 +192,38 @@ async def sync_batch(request: Request) -> BatchSyncResponse:
             task = orchestrate_ingestion_pipeline.delay(record)
             task_ids.append(task.id)
     return BatchSyncResponse(status='queued', queued=len(task_ids), task_ids=task_ids)
+
+
+@app.post('/tasks/sweep/public-candidates', tags=['Ingestion'])
+async def sweep_public_candidates(body: PublicSweepRequest) -> dict[str, Any]:
+    runner = PublicCandidateSweepRunner()
+    request = SweepRequest(
+        role=body.role,
+        location_cluster=body.location_cluster,
+        skills=body.skills,
+        clearance_target=body.clearance_target,
+        max_per_source=body.max_per_source,
+        include_github=body.include_github,
+        include_resume_text_blocks=body.include_resume_text_blocks,
+        resume_text_blocks=body.resume_text_blocks,
+    )
+    result = await runner.run(request)
+    if body.dry_run:
+        result['status'] = 'dry_run'
+        return result
+    task_ids = [orchestrate_ingestion_pipeline.delay(record).id for record in result.get('candidate_records', [])[:250]]
+    return {'status': 'queued', 'queued': len(task_ids), 'task_ids': task_ids, 'summary': result.get('summary'), 'evidence_items': result.get('evidence_items', [])[:100], 'skipped_items': result.get('skipped_items', [])[:100]}
+
+
+@app.post('/tasks/sweep/dc-devops', tags=['Ingestion'])
+async def sweep_dc_devops(dry_run: bool = True, max_per_source: int = Query(10, ge=1, le=50)) -> dict[str, Any]:
+    runner = PublicCandidateSweepRunner()
+    result = await runner.run(default_dc_devops_request(max_per_source=max_per_source))
+    if dry_run:
+        result['status'] = 'dry_run'
+        return result
+    task_ids = [orchestrate_ingestion_pipeline.delay(record).id for record in result.get('candidate_records', [])[:250]]
+    return {'status': 'queued', 'queued': len(task_ids), 'task_ids': task_ids, 'summary': result.get('summary'), 'guardrail': 'Clearance remains unverified. Review all records before sourcing outreach.'}
 
 
 @app.post('/tasks/import/text', tags=['Ingestion'])
