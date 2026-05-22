@@ -1,0 +1,38 @@
+{
+  "records": [
+    {
+      "source_name": "github",
+      "source_user_id": "sampledev",
+      "full_name": "Sample Dev",
+      "profile_url": "https://github.com/sampledev",
+      "username_handle": "sampledev",
+      "location": "Remote",
+      "headline": "Public sample record for SIW smoke testing",
+      "bio_summary": "Python FastAPI Redis PostgreSQL engineer focused on public API systems.",
+      "extracted_skills": ["python", "fastapi", "redis", "postgresql", "api design"],
+      "signals": [
+        {"signal_type": "public_repo_count", "signal_value": "32", "signal_source": "github"}
+      ],
+      "publications": [],
+      "raw_payload": {"sample": true, "source": "github"}
+    },
+    {
+      "source_name": "orcid",
+      "source_user_id": "0000-0000-0000-0000",
+      "full_name": "Research Sample",
+      "profile_url": "https://orcid.org/0000-0000-0000-0000",
+      "username_handle": "0000-0000-0000-0000",
+      "location": "United States",
+      "headline": "Public sample researcher record for SIW smoke testing",
+      "bio_summary": "Researcher with public work in machine learning systems and clinical data infrastructure.",
+      "extracted_skills": ["machine learning", "python", "clinical data", "research"],
+      "signals": [
+        {"signal_type": "orcid_works_count", "signal_value": "8", "signal_source": "orcid"}
+      ],
+      "publications": [
+        {"title": "Sample Public Research Work", "publication_year": 2024, "citation_count": 12, "source_name": "orcid", "source_url": "https://orcid.org/0000-0000-0000-0000", "co_authors": ["Example Coauthor"], "topics": ["machine learning", "clinical data"]}
+      ],
+      "raw_payload": {"sample": true, "source": "orcid"}
+    }
+  ]
+}
