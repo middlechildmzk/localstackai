@@ -1,63 +1,117 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:16-alpine
+    container_name: siw_postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: sourcing
+      POSTGRES_PASSWORD: sourcing
       POSTGRES_DB: sourcing
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d sourcing"]
+      test: ["CMD-SHELL", "pg_isready -U sourcing -d sourcing"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
+    container_name: siw_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 3s
       retries: 5
 
   opensearch:
-    image: opensearchproject/opensearch:2.15.0
+    image: opensearchproject/opensearch:2.13.0
+    container_name: siw_opensearch
+    restart: unless-stopped
     environment:
       discovery.type: single-node
-      plugins.security.disabled: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
       OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      bootstrap.memory_lock: "true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     ports:
       - "9200:9200"
-      - "9600:9600"
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health || exit 1"]
-      interval: 15s
+      interval: 20s
       timeout: 10s
       retries: 10
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: siw_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
   api:
-    build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: siw_api
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4 --log-level info
+    ports:
+      - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+psycopg2://user:pass@postgres:5432/sourcing
+      DATABASE_URL: postgresql://sourcing:sourcing@postgres:5432/sourcing
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       OPENSEARCH_URL: http://opensearch:9200
-      OLLAMA_ENDPOINT: http://host.docker.internal:11434
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/workspace
-    working_dir: /workspace
+      OLLAMA_ENDPOINT: http://ollama:11434
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: siw_worker
+    restart: unless-stopped
+    command: celery -A app.tasks.worker.celery_app worker --loglevel=info --queues=ingestion --concurrency=4 --max-tasks-per-child=200
+    environment:
+      DATABASE_URL: postgresql://sourcing:sourcing@postgres:5432/sourcing
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      OPENSEARCH_URL: http://opensearch:9200
+      OLLAMA_ENDPOINT: http://ollama:11434
+      LOG_LEVEL: INFO
     depends_on:
       postgres:
         condition: service_healthy
@@ -66,27 +120,23 @@ services:
       opensearch:
         condition: service_healthy
 
-  worker:
-    build: .
-    command: celery -A app.tasks.worker.celery_app worker --loglevel=INFO
-    environment:
-      DATABASE_URL: postgresql+psycopg2://user:pass@postgres:5432/sourcing
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
-      OPENSEARCH_URL: http://opensearch:9200
-      OLLAMA_ENDPOINT: http://host.docker.internal:11434
-    volumes:
-      - .:/workspace
-    working_dir: /workspace
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: siw_flower
+    restart: unless-stopped
+    command: celery -A app.tasks.worker.celery_app flower --port=5555 --broker=redis://redis:6379/0
+    ports:
+      - "5555:5555"
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      opensearch:
-        condition: service_healthy
+      - redis
+      - worker
+    profiles:
+      - monitoring
 
 volumes:
   postgres_data:
+  redis_data:
   opensearch_data:
+  ollama_data:
