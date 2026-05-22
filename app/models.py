@@ -1,8 +1,8 @@
 import datetime as dt
 import uuid
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Numeric, String, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -19,6 +19,15 @@ class Candidate(Base):
     current_role = Column(String)
     current_company = Column(String)
     summary_bio = Column(Text)
+    orcid_id = Column(String, unique=True)
+    github_handle = Column(String)
+    gitlab_handle = Column(String)
+    kaggle_handle = Column(String)
+    codeforces_handle = Column(String)
+    mastodon_handle = Column(String)
+    devto_handle = Column(String)
+    scholar_id = Column(String)
+    arxiv_ids = Column(ARRAY(String), default=list)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), onupdate=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
@@ -27,6 +36,8 @@ class Candidate(Base):
     sources = relationship('CandidateSource', back_populates='candidate', cascade='all, delete-orphan')
     skills = relationship('CandidateSkill', back_populates='candidate', cascade='all, delete-orphan')
     experiences = relationship('CandidateExperience', back_populates='candidate', cascade='all, delete-orphan')
+    signals = relationship('CandidateSignal', back_populates='candidate', cascade='all, delete-orphan')
+    publications = relationship('CandidatePublication', back_populates='candidate', cascade='all, delete-orphan')
 
 
 class CandidateSource(Base):
@@ -76,6 +87,37 @@ class CandidateExperience(Base):
     description = Column(Text)
 
     candidate = relationship('Candidate', back_populates='experiences')
+
+
+class CandidateSignal(Base):
+    __tablename__ = 'candidate_signals'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'), nullable=False)
+    signal_type = Column(String, nullable=False)
+    signal_value = Column(Text, nullable=False)
+    signal_source = Column(String, nullable=False)
+    captured_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+    candidate = relationship('Candidate', back_populates='signals')
+
+
+class CandidatePublication(Base):
+    __tablename__ = 'candidate_publications'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id', ondelete='CASCADE'), nullable=False)
+    title = Column(Text, nullable=False)
+    doi = Column(String)
+    publication_year = Column(Integer)
+    citation_count = Column(Integer, default=0)
+    source_name = Column(String, nullable=False)
+    source_url = Column(String)
+    co_authors = Column(ARRAY(String), default=list)
+    topics = Column(ARRAY(String), default=list)
+    created_at = Column(DateTime(timezone=True), default=lambda: dt.datetime.now(dt.timezone.utc), nullable=False)
+
+    candidate = relationship('Candidate', back_populates='publications')
 
 
 class SourceSyncState(Base):
