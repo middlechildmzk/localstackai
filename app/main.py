@@ -13,6 +13,7 @@ from . import models
 from .api_v1 import router as api_v1_router
 from .config import settings
 from .db import get_db, verify_database_connection
+from .importers import import_records_from_text_blocks, import_text_to_record
 from .search import indexer
 from .sources.registry import registry_as_dicts
 from .tasks.compliance import execute_hard_erasure_workflow
@@ -85,6 +86,19 @@ class BatchSyncResponse(BaseModel):
     status: str
     queued: int
     task_ids: list[str]
+
+
+class ImportTextRequest(BaseModel):
+    text: str = Field(..., min_length=10)
+    source_name: str = 'manual_import'
+    source_user_id: Optional[str] = None
+    queue: bool = True
+
+
+class ImportBlocksRequest(BaseModel):
+    blocks: list[str] = Field(..., min_length=1, max_length=100)
+    source_name: str = 'manual_import'
+    queue: bool = True
 
 
 class EraseRequest(BaseModel):
@@ -165,6 +179,27 @@ async def sync_batch(request: Request) -> BatchSyncResponse:
             task = orchestrate_ingestion_pipeline.delay(record)
             task_ids.append(task.id)
     return BatchSyncResponse(status='queued', queued=len(task_ids), task_ids=task_ids)
+
+
+@app.post('/tasks/import/text', tags=['Ingestion'])
+async def import_approved_text(body: ImportTextRequest) -> dict[str, Any]:
+    try:
+        record = import_text_to_record(body.text, source_name=body.source_name, source_user_id=body.source_user_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    if not body.queue:
+        return {'status': 'parsed', 'record': record}
+    task = orchestrate_ingestion_pipeline.delay(record)
+    return {'status': 'queued', 'queued': 1, 'task_ids': [task.id], 'record_preview': {k: record.get(k) for k in ['source_name', 'source_user_id', 'full_name', 'location', 'extracted_skills']}}
+
+
+@app.post('/tasks/import/text-blocks', tags=['Ingestion'])
+async def import_approved_text_blocks(body: ImportBlocksRequest) -> dict[str, Any]:
+    records = import_records_from_text_blocks(body.blocks, source_name=body.source_name)
+    if not body.queue:
+        return {'status': 'parsed', 'records': records}
+    task_ids = [orchestrate_ingestion_pipeline.delay(record).id for record in records]
+    return {'status': 'queued', 'queued': len(task_ids), 'task_ids': task_ids}
 
 
 @app.get('/db/candidates', tags=['Database'])
