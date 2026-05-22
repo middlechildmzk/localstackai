@@ -2,35 +2,59 @@
    Connects the existing SourcingOS frontend to the FastAPI backend when available.
    Safe behavior: if the backend is offline, the UI shows an offline state and uses no hidden network calls. */
 (function () {
-  const DEFAULT_API_BASE = 'http://localhost:8000';
+  const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
+  const FALLBACK_BASES = ['http://127.0.0.1:8000', 'http://localhost:8000'];
   const API_KEY = 'sourcingos_siw_api_base';
 
   function $(id) { return document.getElementById(id); }
   function esc(value) { return String(value || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
   function toastSafe(message) { if (typeof toast === 'function') toast(message); }
 
+  function normalizeBase(value) {
+    return String(value || '').trim().replace(/\/$/, '') || DEFAULT_API_BASE;
+  }
+
   function getApiBase() {
-    return localStorage.getItem(API_KEY) || DEFAULT_API_BASE;
+    return normalizeBase(localStorage.getItem(API_KEY) || DEFAULT_API_BASE);
+  }
+
+  function candidateBases() {
+    const saved = getApiBase();
+    const input = normalizeBase($('siwApiBase')?.value || saved);
+    return [...new Set([input, saved, ...FALLBACK_BASES].map(normalizeBase))];
   }
 
   function setApiBase(value) {
-    const clean = String(value || '').trim().replace(/\/$/, '');
-    localStorage.setItem(API_KEY, clean || DEFAULT_API_BASE);
-    return getApiBase();
+    const clean = normalizeBase(value);
+    localStorage.setItem(API_KEY, clean);
+    const input = $('siwApiBase');
+    if (input) input.value = clean;
+    return clean;
   }
 
   async function fetchJson(path, options = {}) {
-    const base = getApiBase();
-    const url = path.startsWith('http') ? path : `${base}${path}`;
-    const response = await fetch(url, {
-      ...options,
-      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
-    });
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      throw new Error(`${response.status} ${response.statusText}${detail ? ` - ${detail.slice(0, 240)}` : ''}`);
+    const errors = [];
+    const bases = path.startsWith('http') ? [''] : candidateBases();
+    for (const base of bases) {
+      const url = path.startsWith('http') ? path : `${base}${path}`;
+      try {
+        const response = await fetch(url, {
+          ...options,
+          mode: 'cors',
+          cache: 'no-store',
+          headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+        });
+        if (!response.ok) {
+          const detail = await response.text().catch(() => '');
+          throw new Error(`${response.status} ${response.statusText}${detail ? ` - ${detail.slice(0, 240)}` : ''}`);
+        }
+        if (base) setApiBase(base);
+        return response.json();
+      } catch (error) {
+        errors.push(`${url}: ${error.message || error}`);
+      }
     }
-    return response.json();
+    throw new Error(errors.join(' | '));
   }
 
   function roleQueryFromInputs() {
@@ -97,15 +121,15 @@
   async function testBackend() {
     const input = $('siwApiBase');
     if (input) setApiBase(input.value);
-    renderStatus('degraded', 'Checking...');
+    renderStatus('degraded', 'Checking local backend...');
     try {
       const ready = await fetchJson('/ready');
-      if (ready.status === 'ready') renderStatus('online', `DB ${ready.database}, search ${ready.opensearch}`);
+      if (ready.status === 'ready') renderStatus('online', `Connected via ${getApiBase()} · DB ${ready.database}, search ${ready.search_backend || ready.opensearch}`);
       else renderStatus('degraded', JSON.stringify(ready));
       await loadResearchSummary();
     } catch (error) {
-      renderStatus('offline', error.message);
-      renderPanel(`<div class="empty-state">Backend is not reachable at <strong>${esc(getApiBase())}</strong>. Run the Docker backend locally or set a deployed API URL.</div>`);
+      renderStatus('offline', 'Could not reach localhost or 127.0.0.1');
+      renderPanel(`<div class="empty-state">Backend is not reachable. Tried: ${candidateBases().map(esc).join(', ')}.<br><br>Check in browser: <strong>http://localhost:8000/health</strong><br><br>Details: ${esc(error.message)}</div>`);
     }
   }
 
@@ -123,7 +147,7 @@
         <p class="subtle">Role score models: ${(roles.roles || []).map(r => esc(r.role_key)).join(', ') || 'not loaded'}</p>
       `);
     } catch (error) {
-      renderPanel(`<div class="empty-state">Could not load research summary: ${esc(error.message)}</div>`);
+      renderPanel(`<div class="empty-state">Backend connected, but research summary failed: ${esc(error.message)}. Try Load DB or Growth Stats next.</div>`);
     }
   }
 
@@ -132,11 +156,11 @@
     try {
       const data = await fetchJson('/db/candidates?size=50');
       const candidates = data.candidates || [];
-      renderPanel(candidates.length ? candidates.map(c => renderCandidateRow(c)).join('') : '<div class="empty-state">No backend candidates yet. Seed or sync records first.</div>');
-      renderStatus('online', `${candidates.length} backend candidates loaded`);
+      renderPanel(candidates.length ? candidates.map(c => renderCandidateRow(c)).join('') : '<div class="empty-state">No backend candidates yet. Use Import Text or Candidate Upload first.</div>');
+      renderStatus('online', `${candidates.length} backend candidates loaded via ${getApiBase()}`);
     } catch (error) {
-      renderStatus('offline', error.message);
-      renderPanel(`<div class="empty-state">Could not load backend candidates: ${esc(error.message)}</div>`);
+      renderStatus('offline', 'Load DB failed');
+      renderPanel(`<div class="empty-state">Could not load backend candidates. Tried local fallback URLs.<br><br>${esc(error.message)}</div>`);
     }
   }
 
@@ -151,10 +175,10 @@
     try {
       const data = await fetchJson(`/search?${params.toString()}`);
       const results = data.results || [];
-      renderPanel(results.length ? results.map(c => renderCandidateRow(c)).join('') : '<div class="empty-state">No backend matches yet. Seed records or broaden skills.</div>');
-      renderStatus('online', `${results.length} backend matches`);
+      renderPanel(results.length ? results.map(c => renderCandidateRow(c)).join('') : '<div class="empty-state">No backend matches yet. Import records or broaden skills.</div>');
+      renderStatus('online', `${results.length} backend matches via ${getApiBase()}`);
     } catch (error) {
-      renderStatus('offline', error.message);
+      renderStatus('offline', 'Search failed');
       renderPanel(`<div class="empty-state">Backend search failed: ${esc(error.message)}</div>`);
     }
   }
