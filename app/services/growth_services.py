@@ -10,7 +10,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.importers import import_text_to_record
-from app.services.resume_parser import PublicResumeParser
+from app.services.resume_parser import ResumeParser
 from app.tasks.worker import orchestrate_ingestion_pipeline
 
 logger = logging.getLogger('sourcing.growth')
@@ -27,7 +27,7 @@ class CandidateUploadResult:
 class CandidateGrowthService:
     def __init__(self, db: Session):
         self.db = db
-        self.resume_parser = PublicResumeParser()
+        self.resume_parser = ResumeParser()
 
     @staticmethod
     def _hash_optional(value: Optional[str]) -> Optional[str]:
@@ -204,12 +204,13 @@ class CandidateGrowthService:
         skills = list(candidate['skills'] or [])[:4]
         skill_text = ', '.join(skills) if skills else 'your technical background'
         subject = f'Possible {role_title} fit'
+        first_name = candidate['canonical_name'].split()[0] if candidate['canonical_name'] else '[Name]'
         body = (
-            f"Hi {candidate['canonical_name'].split()[0] if candidate['canonical_name'] else '[Name]'},\n\n"
+            f"Hi {first_name},\n\n"
             f"I came across your public/approved profile information and noticed experience around {skill_text}. "
             f"I am supporting a {role_title} role and thought it may be worth comparing against your interests.\n\n"
             "I do not want to assume fit from keywords alone. If you are open to it, I can send over the high-level details and you can tell me whether it is relevant.\n\n"
-            "Also, if any security-clearance language appears in your public profile, I treat that as an unverified breadcrumb only and would only discuss verification through the approved hiring process.\n\n"
+            "If any security-clearance language appears in your public profile, I treat that as an unverified breadcrumb only and would only discuss verification through the approved hiring process.\n\n"
             f"Best,\n{recruiter_name}\n\n"
             "---\nDraft only. Human review required before sending. Include opt-out language where required."
         )
