@@ -15,6 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
       - ./migrations/001_add_source_signals.sql:/docker-entrypoint-initdb.d/02_source_signals.sql:ro
+      - ./migrations/002_research_scoring_observability.sql:/docker-entrypoint-initdb.d/03_research_scoring.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sourcing -d sourcing"]
       interval: 10s
