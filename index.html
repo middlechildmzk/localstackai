@@ -35,7 +35,7 @@
   <main class="main">
     <header class="topbar">
       <div><div class="eyebrow">Daily sourcing cockpit</div><h1>What are you sourcing today?</h1></div>
-      <div class="top-actions"><a class="btn secondary" href="/projects.html">Project workspace</a><a class="btn secondary" href="/registry.html">Source library</a></div>
+      <div class="top-actions"><a class="btn secondary" href="/projects.html">Project workspace</a><a class="btn secondary" href="/registry.html">Source library</a><a class="btn secondary" href="/candidate-upload.html">Candidate upload</a></div>
     </header>
 
     <section class="command-card">
@@ -85,7 +85,14 @@
             <button class="small-btn" onclick="SourcingOSImport.importCommandTextToBackend()">Import Text</button>
             <button class="small-btn" onclick="SourcingOSBackend.openBackendViewer()">Open DB</button>
           </div>
-          <p class="subtle">Connects this UI to the FastAPI/Postgres/OpenSearch backend when running locally or deployed. If offline, the rest of SourcingOS still works. Import Text queues approved profile/resume text from the command box.</p>
+          <div class="siw-api-row" style="margin-top:8px">
+            <button class="small-btn primary" onclick="SourcingOSImport.runRoleSweep(true)">Role Sweep Dry Run</button>
+            <button class="small-btn" onclick="SourcingOSImport.runDcDevopsSweep(true)">DC DevOps Dry Run</button>
+            <button class="small-btn" onclick="SourcingOSImport.runRoleSweep(false)">Queue Role Sweep</button>
+            <button class="small-btn" onclick="SourcingOSImport.loadGrowthStats()">Growth Stats</button>
+            <button class="small-btn" onclick="SourcingOSImport.openCandidateUpload()">Candidate Upload</button>
+          </div>
+          <p class="subtle">Connects this UI to the FastAPI/Postgres/OpenSearch backend when running locally or deployed. Sweeps should start as dry runs. Clearance language remains an unverified breadcrumb and all restricted-platform work stays manual.</p>
           <div id="siwBackendResults" class="siw-backend-results"><div class="empty-state">Set the API URL, then click Connect. Local default: <strong>http://localhost:8000</strong>.</div></div>
         </div>
 
