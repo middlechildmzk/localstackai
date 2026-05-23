@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from . import models
@@ -58,6 +59,11 @@ app.add_middleware(
 )
 app.include_router(api_v1_router)
 app.include_router(growth_router)
+
+
+def _table_exists(db: Session, table_name: str) -> bool:
+    row = db.execute(text('SELECT to_regclass(:table_name) AS rel'), {'table_name': f'public.{table_name}'}).mappings().first()
+    return bool(row and row.get('rel'))
 
 
 class CandidateHit(BaseModel):
@@ -251,44 +257,94 @@ async def import_approved_text_blocks(body: ImportBlocksRequest) -> dict[str, An
 
 @app.get('/db/candidates', tags=['Database'])
 async def list_database_candidates(size: int = Query(50, ge=1, le=250), db: Session = Depends(get_db)) -> dict[str, Any]:
-    rows = db.query(models.Candidate).filter(models.Candidate.deleted_at.is_(None)).order_by(models.Candidate.created_at.desc()).limit(size).all()
-    return {'count': len(rows), 'candidates': [{'id': str(c.id), 'name': c.canonical_name, 'location': c.primary_location, 'headline': c.headline, 'current_role': c.current_role, 'current_company': c.current_company, 'skills': [s.skill_name for s in c.skills], 'sources': [{'source': src.source_name, 'handle': src.username_handle, 'url': src.profile_url} for src in c.sources]} for c in rows]}
+    if not _table_exists(db, 'candidates'):
+        return {'count': 0, 'candidates': [], 'status': 'degraded_missing_candidates_table'}
+    try:
+        rows = db.execute(
+            text(
+                '''
+                SELECT c.id, c.canonical_name, c.primary_location, c.headline, c.current_role, c.current_company, c.created_at
+                FROM candidates c
+                WHERE c.deleted_at IS NULL
+                ORDER BY c.created_at DESC
+                LIMIT :size
+                '''
+            ),
+            {'size': min(max(size, 1), 250)},
+        ).mappings().all()
+        candidate_ids = [str(r['id']) for r in rows]
+        skills_by_candidate: dict[str, list[str]] = {cid: [] for cid in candidate_ids}
+        sources_by_candidate: dict[str, list[dict[str, Any]]] = {cid: [] for cid in candidate_ids}
+        if candidate_ids and _table_exists(db, 'candidate_skills'):
+            skill_rows = db.execute(
+                text('SELECT candidate_id, skill_name FROM candidate_skills WHERE candidate_id = ANY(:candidate_ids)'),
+                {'candidate_ids': candidate_ids},
+            ).mappings().all()
+            for row in skill_rows:
+                skills_by_candidate.setdefault(str(row['candidate_id']), []).append(row['skill_name'])
+        if candidate_ids and _table_exists(db, 'candidate_sources'):
+            source_rows = db.execute(
+                text('SELECT candidate_id, source_name, username_handle, profile_url FROM candidate_sources WHERE candidate_id = ANY(:candidate_ids)'),
+                {'candidate_ids': candidate_ids},
+            ).mappings().all()
+            for row in source_rows:
+                sources_by_candidate.setdefault(str(row['candidate_id']), []).append({'source': row['source_name'], 'handle': row['username_handle'], 'url': row['profile_url']})
+        candidates = []
+        for row in rows:
+            cid = str(row['id'])
+            candidates.append({
+                'id': cid,
+                'candidate_id': cid,
+                'name': row['canonical_name'],
+                'canonical_name': row['canonical_name'],
+                'location': row['primary_location'],
+                'primary_location': row['primary_location'],
+                'headline': row['headline'],
+                'current_role': row['current_role'],
+                'current_company': row['current_company'],
+                'skills': skills_by_candidate.get(cid, []),
+                'sources': sources_by_candidate.get(cid, []),
+            })
+        return {'count': len(candidates), 'candidates': candidates, 'status': 'ok'}
+    except Exception as exc:
+        logger.error('Database candidate list failed: %s', exc, exc_info=True)
+        return {'count': 0, 'candidates': [], 'status': 'degraded_query_failed', 'error': str(exc)[:500]}
 
 
 @app.get('/db/view', response_class=HTMLResponse, tags=['Database'])
 async def database_viewer() -> str:
     return """
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>SIW Database Viewer</title><style>body{font-family:Inter,system-ui,sans-serif;background:#07111f;color:#eaf3ff;margin:0;padding:24px}.wrap{max-width:1150px;margin:auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.card{border:1px solid rgba(255,255,255,.12);background:#0d1a2e;border-radius:16px;padding:16px;margin:12px 0}input,button{border-radius:10px;border:1px solid rgba(255,255,255,.16);padding:10px;background:#101d31;color:#fff}button{cursor:pointer;background:#245cff}a{color:#9fd0ff}.meta{color:#9aa8bc;font-size:13px}.tag{display:inline-block;border:1px solid rgba(159,208,255,.25);border-radius:999px;padding:3px 7px;margin:3px;font-size:12px}</style></head><body><div class='wrap'><div class='top'><div><h1>Sourcing Intelligence Workspace</h1><p class='meta'>Local database viewer. API docs: <a href='/docs'>/docs</a>. API v1: <a href='/api/v1/research/summary'>/api/v1/research/summary</a>. Sources: <a href='/sources'>/sources</a>. Growth: <a href='/growth/stats'>/growth/stats</a>.</p></div><button onclick='load()'>Refresh</button></div><input id='q' placeholder='Search text, skill, source, location' oninput='render()' style='width:100%;box-sizing:border-box'><div id='stats' class='meta'></div><div id='rows'></div></div><script>let data=[];async function load(){const r=await fetch('/db/candidates?size=250');const j=await r.json();data=j.candidates||[];render()}function render(){const q=(document.getElementById('q').value||'').toLowerCase();const rows=data.filter(c=>JSON.stringify(c).toLowerCase().includes(q));document.getElementById('stats').textContent=rows.length+' candidates shown';document.getElementById('rows').innerHTML=rows.map(c=>`<div class='card'><h3>${c.name||'Unnamed'}</h3><p class='meta'>${c.current_role||''} ${c.current_company?'· '+c.current_company:''} ${c.location?'· '+c.location:''}</p><p>${c.headline||''}</p><div>${(c.skills||[]).map(s=>`<span class='tag'>${s}</span>`).join('')}</div><div>${(c.sources||[]).map(s=>`<p class='meta'>${s.source}: ${s.url?`<a href='${s.url}' target='_blank'>${s.handle||s.url}</a>`:(s.handle||'')}</p>`).join('')}</div></div>`).join('')||'<div class=card>No candidates yet. Queue ingestion first.</div>'}load()</script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>SIW Database Viewer</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0f172a; color: #e5e7eb; }
+    header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
+    main { padding: 20px; display: grid; gap: 14px; }
+    .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 16px; }
+    pre { white-space: pre-wrap; word-break: break-word; background: rgba(0,0,0,.25); padding: 12px; border-radius: 12px; }
+    button { border: 0; border-radius: 999px; padding: 10px 14px; font-weight: 700; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    input { width: 100%; box-sizing: border-box; border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: white; }
+    a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+<header><h1>SIW Database Viewer</h1><p>Local browser view over the backend candidate database.</p></header>
+<main>
+  <div class='card'><button onclick='loadCandidates()'>Load candidates</button> <button onclick='loadStats()'>Growth stats</button> <a href='/docs' target='_blank'>API docs</a></div>
+  <div class='grid' id='stats'></div>
+  <div id='out' class='card'>Click Load candidates.</div>
+</main>
+<script>
+async function j(url, options){ const r=await fetch(url, options); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function loadStats(){ const d=await j('/growth/stats'); document.getElementById('stats').innerHTML=Object.entries(d).map(([k,v])=>`<div class='card'><strong>${k}</strong><pre>${JSON.stringify(v,null,2)}</pre></div>`).join(''); }
+async function loadCandidates(){ const d=await j('/db/candidates?size=100'); document.getElementById('out').innerHTML = '<pre>'+JSON.stringify(d,null,2)+'</pre>'; }
+loadStats().catch(e=>document.getElementById('out').textContent=e.message);
+</script>
+</body>
+</html>
 """
-
-
-@app.post('/compliance/erase', response_model=EraseResponse, tags=['Compliance'])
-async def erase_candidate(body: EraseRequest, db: Session = Depends(get_db)) -> EraseResponse:
-    clean_email = body.email.strip().lower()
-    email_hash = hashlib.sha256(clean_email.encode('utf-8')).hexdigest()
-    try:
-        execute_hard_erasure_workflow(target_email=clean_email)
-        return EraseResponse(status='completed', message='Candidate profile data has been permanently erased across relational storage and search index layers. An audit record has been written.', anonymized_email_hash=email_hash)
-    except Exception as exc:
-        logger.error('GDPR erasure workflow failed for hash=%s: %s', email_hash, exc, exc_info=True)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='The erasure workflow encountered a critical error. Review logs using the anonymized hash.')
-
-
-@app.get('/health', response_model=HealthResponse, tags=['Operations'])
-async def health_check() -> HealthResponse:
-    return HealthResponse(status='healthy', service='Sourcing Intelligence Workspace', version='1.0.0')
-
-
-@app.get('/ready', response_model=ReadinessResponse, tags=['Operations'])
-async def readiness_check() -> ReadinessResponse | JSONResponse:
-    db_ok = verify_database_connection()
-    os_ok = indexer.ping()
-    if not db_ok or not os_ok:
-        return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content=ReadinessResponse(status='degraded', database='ok' if db_ok else 'unavailable', opensearch='ok' if os_ok else 'unavailable').model_dump())
-    return ReadinessResponse(status='ready', database='ok', opensearch='ok')
-
-
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.error('Unhandled exception on %s %s: %s', request.method, request.url.path, exc, exc_info=True)
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'An unexpected internal error occurred. See server logs for details.'})
