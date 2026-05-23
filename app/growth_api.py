@@ -2,7 +2,7 @@ import logging
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -44,6 +44,19 @@ class OutreachDraftRequest(BaseModel):
     candidate_id: str
     role_title: str = 'Senior Technical Role'
     recruiter_name: str = '[Your name]'
+
+
+def _table_exists(db: Session, table_name: str) -> bool:
+    row = db.execute(text('SELECT to_regclass(:table_name) AS rel'), {'table_name': f'public.{table_name}'}).mappings().first()
+    return bool(row and row.get('rel'))
+
+
+def _safe_count(db: Session, table_name: str, where_clause: str = '') -> int:
+    if not _table_exists(db, table_name):
+        return 0
+    sql = f'SELECT COUNT(*) AS n FROM {table_name} {where_clause}'
+    row = db.execute(text(sql)).mappings().first()
+    return int(row['n']) if row else 0
 
 
 @router.post('/candidate-upload', status_code=status.HTTP_202_ACCEPTED)
@@ -96,6 +109,8 @@ async def queue_due_refreshes(body: RefreshRequest, db: Session = Depends(get_db
 
 @router.get('/refresh/jobs')
 async def list_refresh_jobs(size: int = 100, db: Session = Depends(get_db)) -> dict[str, Any]:
+    if not _table_exists(db, 'candidate_refresh_jobs'):
+        return {'count': 0, 'jobs': [], 'warning': 'candidate_refresh_jobs table is missing. Run/reset migrations.'}
     rows = db.execute(
         text(
             '''
@@ -123,6 +138,8 @@ async def create_outreach_draft(body: OutreachDraftRequest, db: Session = Depend
 
 @router.get('/outreach/drafts')
 async def list_outreach_drafts(size: int = 100, db: Session = Depends(get_db)) -> dict[str, Any]:
+    if not _table_exists(db, 'outreach_drafts'):
+        return {'count': 0, 'drafts': [], 'warning': 'outreach_drafts table is missing. Run/reset migrations.'}
     rows = db.execute(
         text(
             '''
@@ -141,16 +158,23 @@ async def list_outreach_drafts(size: int = 100, db: Session = Depends(get_db)) -
 
 @router.get('/stats')
 async def growth_stats(db: Session = Depends(get_db)) -> dict[str, Any]:
-    row = db.execute(
-        text(
-            '''
-            SELECT
-              (SELECT COUNT(*) FROM candidates WHERE deleted_at IS NULL) AS candidates,
-              (SELECT COUNT(*) FROM candidate_uploads) AS uploads,
-              (SELECT COUNT(*) FROM candidate_refresh_jobs WHERE status = 'queued') AS queued_refreshes,
-              (SELECT COUNT(*) FROM outreach_drafts WHERE status = 'draft') AS draft_outreach,
-              (SELECT COUNT(*) FROM candidate_linked_profiles WHERE profile_type = 'linkedin') AS linkedins
-            '''
-        )
-    ).mappings().first()
-    return dict(row or {})
+    missing = [
+        table for table in [
+            'candidates',
+            'candidate_uploads',
+            'candidate_refresh_jobs',
+            'outreach_drafts',
+            'candidate_linked_profiles',
+        ]
+        if not _table_exists(db, table)
+    ]
+    return {
+        'candidates': _safe_count(db, 'candidates', 'WHERE deleted_at IS NULL'),
+        'uploads': _safe_count(db, 'candidate_uploads'),
+        'queued_refreshes': _safe_count(db, 'candidate_refresh_jobs', "WHERE status = 'queued'"),
+        'draft_outreach': _safe_count(db, 'outreach_drafts', "WHERE status = 'draft'"),
+        'linkedins': _safe_count(db, 'candidate_linked_profiles', "WHERE profile_type = 'linkedin'"),
+        'missing_tables': missing,
+        'status': 'ok' if not missing else 'degraded_missing_tables',
+        'note': 'If missing_tables is not empty, run/reset migrations. Stats still returns safe zero counts.'
+    }
