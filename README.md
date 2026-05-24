@@ -432,3 +432,4 @@ npm run build
 ### V21.0.1 Architecture Decision
 
 Claude's V21 build remains the primary base. This patch adds preview friendliness and missing hub/admin/cron coverage without replacing Claude's core app structure, schema, stack builder, or API routes.
+
