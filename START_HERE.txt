@@ -1,0 +1,12 @@
+StackBuilder AI V21.0.1 Clean Package
+
+This is the cleaned Next.js version. If npm run dev shows Astro or stillherefaith, you are in the wrong folder.
+
+Correct commands:
+cd stackbuilder-ai-v21-clean
+npm install
+npm run dev
+
+Expected package.json:
+name: stackbuilder-ai
+script dev: next dev
