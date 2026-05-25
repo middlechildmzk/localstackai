@@ -54,6 +54,7 @@ export function Header() {
 
 const navLinks = [
   { href: "/tools", label: "Tools" },
+  { href: "/for", label: "For" },
   { href: "/workflows", label: "Workflows" },
   { href: "/stacks", label: "Stacks" },
   { href: "/trending", label: "Trending" },
