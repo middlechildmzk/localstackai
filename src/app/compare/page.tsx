@@ -1,40 +1,117 @@
 import Link from "next/link";
+import { ArrowRight, GitCompare, Search, Shield, Sparkles } from "lucide-react";
+import { createServerClient } from "@/lib/supabase";
 import { buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = buildMetadata({
   title: "AI Tool Comparisons",
-  description: "Compare popular AI tools by pricing, freshness, stack usage, and workflow fit.",
+  description: "Compare popular AI tools by pricing, freshness, stack usage, alternatives, and workflow fit.",
   path: "/compare",
 });
 
-const comparisons = [
-  { slug: "chatgpt-vs-claude", title: "ChatGPT vs Claude", note: "Best general-purpose AI assistant for writing, coding, and research." },
-  { slug: "runway-vs-midjourney", title: "Runway vs Midjourney", note: "Video generation vs image generation in creator workflows." },
-  { slug: "perplexity-vs-chatgpt", title: "Perplexity vs ChatGPT", note: "Cited research compared with general AI assistant workflows." },
+const featuredComparisons = [
+  { slug: "chatgpt-vs-claude", title: "ChatGPT vs Claude", note: "General assistant comparison for writing, coding, and analysis." },
+  { slug: "runway-vs-pika", title: "Runway vs Pika", note: "AI video generation for creators and agencies." },
+  { slug: "suno-vs-udio", title: "Suno vs Udio", note: "AI music generation for creators and musicians." },
+  { slug: "zapier-vs-make", title: "Zapier vs Make", note: "Workflow automation and app integration stacks." },
+  { slug: "perplexity-vs-chatgpt", title: "Perplexity vs ChatGPT", note: "Cited research versus general assistant workflows." },
+  { slug: "midjourney-vs-flux", title: "Midjourney vs FLUX", note: "AI image generation for creative production." },
 ];
 
-export default function CompareHubPage() {
+export default async function CompareHubPage() {
+  const supabase = createServerClient();
+  const { data: tools } = await supabase
+    .from("tools")
+    .select("id,slug,name,tagline,pricing_model,starting_price,freshness,tool_score,stack_count")
+    .eq("is_published", true)
+    .order("tool_score", { ascending: false })
+    .limit(48);
+
+  const toolCount = tools?.length ?? 0;
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-8">
-        <p className="text-brand-400 text-sm font-medium mb-2">Comparison Lab</p>
-        <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "var(--font-display)" }}>
-          Compare AI tools by workflow fit.
-        </h1>
-        <p className="text-zinc-400 max-w-2xl">
-          Compare pricing, freshness, stack usage, and best-fit workflows. Rankings are not vote-only and sponsored placements must be labeled.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {comparisons.map((item) => (
-          <Link key={item.slug} href={`/compare/${item.slug}`} className="glass p-5 hover:border-white/10 transition-all">
-            <h2 className="text-white font-semibold mb-2" style={{ fontFamily: "var(--font-display)" }}>{item.title}</h2>
-            <p className="text-sm text-zinc-500">{item.note}</p>
-            <span className="inline-block mt-4 text-xs text-brand-400">Open comparison →</span>
-          </Link>
-        ))}
-      </div>
+    <div className="min-h-screen bg-[#0a0a0f]">
+      <section className="relative overflow-hidden border-b border-white/5 px-4 py-16">
+        <div className="absolute left-1/2 top-0 h-[460px] w-[760px] -translate-x-1/2 rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="max-w-4xl">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-3 py-1.5 text-xs font-medium text-brand-300">
+              <GitCompare size={13} /> V28 comparison engine
+            </div>
+            <h1 className="mb-5 text-4xl font-bold tracking-tight text-white sm:text-6xl" style={{ fontFamily: "var(--font-display)" }}>
+              Compare AI tools by workflow, not hype.
+            </h1>
+            <p className="max-w-3xl text-lg leading-8 text-zinc-400">
+              Compare pricing, free plans, freshness, stack usage, best-fit workflows, and replacement context before adding tools to your stack.
+            </p>
+          </div>
+
+          <form action="/compare" className="mt-10 rounded-2xl border border-white/10 bg-[#111118] p-3">
+            <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+              <select name="a" className="h-12 rounded-xl border border-white/10 bg-black/30 px-4 text-sm text-zinc-300 outline-none focus:border-brand-500/60">
+                <option value="">Choose first tool</option>
+                {(tools ?? []).map((tool: any) => <option key={tool.slug} value={tool.slug}>{tool.name}</option>)}
+              </select>
+              <select name="b" className="h-12 rounded-xl border border-white/10 bg-black/30 px-4 text-sm text-zinc-300 outline-none focus:border-brand-500/60">
+                <option value="">Choose second tool</option>
+                {(tools ?? []).map((tool: any) => <option key={tool.slug} value={tool.slug}>{tool.name}</option>)}
+              </select>
+              <button formAction={compareAction} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-500">
+                Compare <ArrowRight size={15} />
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Stat icon={<Search size={15} />} label="Tools available" value={toolCount} />
+            <Stat icon={<Shield size={15} />} label="Trust fields" value={6} />
+            <Stat icon={<Sparkles size={15} />} label="Featured comparisons" value={featuredComparisons.length} />
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm text-brand-400">High-intent comparisons</p>
+              <h2 className="mt-1 text-2xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>Popular AI tool matchups</h2>
+            </div>
+            <Link href="/tools" className="text-sm text-brand-400 hover:text-brand-300">Browse tools →</Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {featuredComparisons.map((item) => (
+              <Link key={item.slug} href={`/compare/${item.slug}`} className="group rounded-2xl border border-white/10 bg-[#111118] p-5 transition-all hover:border-brand-500/50 hover:bg-white/[0.05]">
+                <h3 className="mb-2 font-semibold text-white group-hover:text-brand-200" style={{ fontFamily: "var(--font-display)" }}>{item.title}</h3>
+                <p className="text-sm leading-6 text-zinc-500">{item.note}</p>
+                <span className="mt-4 inline-flex items-center gap-1 text-xs text-brand-400">Open comparison <ArrowRight size={12} /></span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+async function compareAction(formData: FormData) {
+  "use server";
+  const a = String(formData.get("a") ?? "");
+  const b = String(formData.get("b") ?? "");
+  if (!a || !b || a === b) return;
+  const { redirect } = await import("next/navigation");
+  redirect(`/compare/${a}-vs-${b}`);
+}
+
+function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-3 text-brand-400">{icon}</div>
+      <div className="text-3xl font-bold text-white">{value}</div>
+      <div className="mt-1 text-sm text-zinc-500">{label}</div>
     </div>
   );
 }
