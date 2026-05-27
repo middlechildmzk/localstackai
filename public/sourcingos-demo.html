@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SourcingOS — Talent Search Demo</title>
+  <style>
+    html,body{margin:0;background:#07111f;color:#f2f7ff;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    .loading{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+    .dot{width:12px;height:12px;border-radius:10px;background:linear-gradient(135deg,#58c7f3,#8b5cf6);box-shadow:0 0 24px rgba(88,199,243,.5);animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}
+    a{color:#58c7f3}
+  </style>
+</head>
+<body>
+  <div class="loading"><div class="dot"></div><h1>SourcingOS Talent Search</h1><p>Loading the recovered SourcingOS workbench and live source runner…</p></div>
+  <script>
+    const commit = 'bcd540e99207f210aadc0ed25ba20cdc715d0d9d';
+    const raw = `https://raw.githubusercontent.com/middlechildmzk/localstackai/${commit}/index.html`;
+    const cdn = `https://cdn.jsdelivr.net/gh/middlechildmzk/localstackai@${commit}`;
+    fetch(raw, { cache: 'no-store' })
+      .then(r => {
+        if (!r.ok) throw new Error('Could not load recovered SourcingOS source');
+        return r.text();
+      })
+      .then(html => {
+        html = html
+          .replace('href="/talent-search.css"', `href="${cdn}/talent-search.css"`)
+          .replace('src="/talent-search.js"', `src="${cdn}/talent-search.js"`)
+          .replace('src="/talent-overrides.js"', `src="${cdn}/talent-overrides.js"`)
+          .replace('src="/live-source-runner.js"', `src="${cdn}/live-source-runner.js"`)
+          .replace('<a href="/registry.html">Sources</a>', '<a href="/registry.html">Sources</a><a href="/sourcers-vault">Sourcers Vault</a>')
+          .replace('<a class="btn secondary" href="/registry.html">Source library</a>', '<a class="btn secondary" href="/registry.html">Source library</a><a class="btn secondary" href="/sourcers-vault">Sourcers Vault</a>');
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(error => {
+        document.body.innerHTML = `<div class="loading"><h1>SourcingOS Demo</h1><p>Could not load the recovered demo source.</p><pre>${String(error)}</pre><p><a href="/sourcers-vault">Open Sourcers Vault instead</a></p></div>`;
+      });
+  </script>
+</body>
+</html>
