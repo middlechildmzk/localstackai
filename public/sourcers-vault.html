@@ -19,9 +19,9 @@
     <p>Loading the SourcingOS tools, methods, prompts, and cleared sourcing command center…</p>
   </div>
   <script>
-    fetch('/sourcers-vault.html?source=repo-root')
+    fetch('https://raw.githubusercontent.com/middlechildmzk/localstackai/main/sourcers-vault.html', { cache: 'no-store' })
       .then(function(response){
-        if(!response.ok){ throw new Error('Primary Vault asset unavailable'); }
+        if(!response.ok){ throw new Error('Vault asset unavailable'); }
         return response.text();
       })
       .then(function(html){
@@ -32,13 +32,8 @@
         document.write(html);
         document.close();
       })
-      .catch(function(){
-        fetch('https://raw.githubusercontent.com/middlechildmzk/localstackai/main/sourcers-vault.html')
-          .then(function(response){ return response.text(); })
-          .then(function(html){ document.open(); document.write(html); document.close(); })
-          .catch(function(error){
-            document.body.innerHTML = '<div class="loading"><h1>SourcingOS Sourcers Vault</h1><p>The Vault asset could not be loaded. Check the GitHub/Vercel deployment for <code>sourcers-vault.html</code>.</p><pre>'+String(error)+'</pre></div>';
-          });
+      .catch(function(error){
+        document.body.innerHTML = '<div class="loading"><h1>SourcingOS Sourcers Vault</h1><p>The Vault asset could not be loaded. Check GitHub/Vercel deployment for <code>sourcers-vault.html</code>.</p><pre>'+String(error)+'</pre></div>';
       });
   </script>
 </body>
