@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SourcingOS — Sourcers Vault</title>
+  <style>
+    html,body{margin:0;background:#070b14;color:#c9d6e8;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:24px}
+    .dot{width:10px;height:10px;border-radius:999px;background:#38bdf8;box-shadow:0 0 18px rgba(56,189,248,.75);animation:pulse 1.6s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+    a{color:#38bdf8}
+  </style>
+</head>
+<body>
+  <div class="loading">
+    <div class="dot"></div>
+    <h1>SourcingOS Sourcers Vault</h1>
+    <p>Loading the SourcingOS tools, methods, prompts, and cleared sourcing command center…</p>
+  </div>
+  <script>
+    fetch('/sourcers-vault.html?source=repo-root')
+      .then(function(response){
+        if(!response.ok){ throw new Error('Primary Vault asset unavailable'); }
+        return response.text();
+      })
+      .then(function(html){
+        if(html.indexOf('SourcingOS') === -1 || html.indexOf('Sourcers Vault') === -1){
+          throw new Error('Unexpected Vault payload');
+        }
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(function(){
+        fetch('https://raw.githubusercontent.com/middlechildmzk/localstackai/main/sourcers-vault.html')
+          .then(function(response){ return response.text(); })
+          .then(function(html){ document.open(); document.write(html); document.close(); })
+          .catch(function(error){
+            document.body.innerHTML = '<div class="loading"><h1>SourcingOS Sourcers Vault</h1><p>The Vault asset could not be loaded. Check the GitHub/Vercel deployment for <code>sourcers-vault.html</code>.</p><pre>'+String(error)+'</pre></div>';
+          });
+      });
+  </script>
+</body>
+</html>
