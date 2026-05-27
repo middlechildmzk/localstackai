@@ -14,8 +14,7 @@ export function Header() {
             className="font-display font-bold text-white text-lg tracking-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            StackBuilder
-            <span className="text-brand-400 ml-0.5">AI</span>
+            SourcingOS
           </span>
         </Link>
 
@@ -35,16 +34,16 @@ export function Header() {
         {/* CTA */}
         <div className="flex items-center gap-2">
           <Link
-            href="/submit"
+            href="/sourcers-vault"
             className="hidden sm:inline-flex items-center px-3.5 py-1.5 text-sm text-zinc-300 border border-white/10 hover:border-white/20 rounded-lg transition-all hover:bg-white/5"
           >
-            Submit Tool
+            Sourcers Vault
           </Link>
           <Link
-            href="/stacks/new"
+            href="/"
             className="inline-flex items-center px-3.5 py-1.5 text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors"
           >
-            Build Stack
+            Open SourcingOS
           </Link>
         </div>
       </div>
@@ -53,10 +52,11 @@ export function Header() {
 }
 
 const navLinks = [
-  { href: "/tools", label: "Tools" },
-  { href: "/for", label: "For" },
-  { href: "/workflows", label: "Workflows" },
-  { href: "/stacks", label: "Stacks" },
-  { href: "/trending", label: "Trending" },
-  { href: "/compare", label: "Compare" },
+  { href: "/", label: "Talent Search" },
+  { href: "/projects", label: "Projects" },
+  { href: "/candidates", label: "Candidates" },
+  { href: "/sources", label: "Sources" },
+  { href: "/outreach", label: "Outreach" },
+  { href: "/copilot", label: "Copilot" },
+  { href: "/sourcers-vault", label: "Sourcers Vault" },
 ];
