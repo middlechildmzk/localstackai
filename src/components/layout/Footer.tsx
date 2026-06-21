@@ -29,8 +29,8 @@ export function Footer() {
           <p className="text-xs text-zinc-600">
             © {new Date().getFullYear()} StackBuilder AI. All rights reserved.
           </p>
-          <p className="text-xs text-zinc-600">
-            Sponsored listings are clearly labeled. Rankings are never for sale.
+          <p className="text-xs text-zinc-600 text-center sm:text-right">
+            Some links may earn a commission. Sponsored listings are labeled. Rankings are never for sale.
           </p>
         </div>
       </div>
@@ -60,9 +60,9 @@ const footerSections = [
   {
     title: "Build",
     links: [
+      { href: "/find-stack", label: "Find My Stack" },
       { href: "/stacks/new", label: "Build a Stack" },
-      { href: "/stacks/faceless-youtube-production-stack", label: "Faceless YouTube Stack" },
-      { href: "/stacks/solo-founder-marketing-stack", label: "Solo Founder Stack" },
+      { href: "/learn", label: "Knowledge Center" },
       { href: "/newsletter", label: "Newsletter" },
     ],
   },
@@ -70,6 +70,7 @@ const footerSections = [
     title: "Trust",
     links: [
       { href: "/methodology", label: "Methodology" },
+      { href: "/affiliate-disclosure", label: "Affiliate Disclosure" },
       { href: "/privacy", label: "Privacy" },
       { href: "/terms", label: "Terms" },
       { href: "/contact", label: "Contact" },
