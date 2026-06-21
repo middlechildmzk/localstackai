@@ -11,7 +11,7 @@ export function HeroStackSearch() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim()) return;
-    router.push(`/workflows?q=${encodeURIComponent(query.trim())}`);
+    router.push(`/find-stack?q=${encodeURIComponent(query.trim())}`);
   }
 
   return (
