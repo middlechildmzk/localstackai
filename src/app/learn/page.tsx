@@ -11,9 +11,14 @@ export const metadata: Metadata = buildMetadata({
 
 const articles = [
   { href: "/learn/best-ai-stack-for-faceless-youtube", title: "Best AI Stack for Faceless YouTube Channels", description: "The flagship workflow: research, script, voice, visuals, edit, package, publish, and repurpose.", tag: "Faceless YouTube" },
+  { href: "/learn/how-to-make-a-faceless-youtube-video-with-ai", title: "How to Make a Faceless YouTube Video With AI", description: "A practical step-by-step workflow for making a faceless video with human judgment in the loop.", tag: "How-to" },
+  { href: "/learn/best-ai-voiceover-tools-for-faceless-videos", title: "Best AI Voiceover Tools for Faceless Videos", description: "Compare voiceover tools for narration, story videos, explainers, and faceless channels.", tag: "Voice" },
+  { href: "/compare/elevenlabs-vs-murf-vs-playht", title: "ElevenLabs vs Murf vs Play.ht", description: "A buyer-intent comparison for choosing the right AI voice tool.", tag: "Comparison" },
   { href: "/learn/best-ai-tools-to-turn-long-videos-into-shorts", title: "Best AI Tools to Turn Long Videos Into Shorts", description: "A repurposing stack for turning podcasts, interviews, webinars, and YouTube videos into clips.", tag: "Repurposing" },
   { href: "/compare/opusclip-vs-klap-vs-vizard", title: "OpusClip vs Klap vs Vizard", description: "A buyer-intent comparison for choosing the right AI clipping tool.", tag: "Comparison" },
   { href: "/learn/best-ai-tools-to-repurpose-podcast-into-clips", title: "Best AI Tools to Repurpose a Podcast Into Clips", description: "A workflow for turning podcast episodes into clips, quote cards, posts, and distribution assets.", tag: "Podcast clips" },
+  { href: "/learn/best-ai-tools-to-add-captions-to-short-videos", title: "Best AI Tools to Add Captions to Short Videos", description: "Caption tools for TikTok, Reels, Shorts, podcast clips, and faceless videos.", tag: "Captions" },
+  { href: "/learn/best-ai-tools-for-reddit-story-videos", title: "Best AI Tools for Reddit Story Videos", description: "A niche faceless stack for story videos, narration clips, captions, and templates.", tag: "Story videos" },
   { href: "/learn/cheapest-ai-stack-for-faceless-youtube", title: "The Cheapest AI Stack to Start a Faceless YouTube Channel", description: "A free, budget, and creator-tier stack for testing a channel before overbuying tools.", tag: "Budget stack" },
   { href: "/learn/best-ai-tools-for-tiktok-content", title: "Best AI Tools for TikTok Content Creation", description: "Tools and workflows for ideation, short-form video, captions, repurposing, and scheduling.", tag: "Short-form" },
   { href: "/learn/best-ai-tools-for-creators", title: "Best AI Tools for Content Creators", description: "A practical creator stack for writing, visuals, video, editing, publishing, and automation.", tag: "Creators" },
