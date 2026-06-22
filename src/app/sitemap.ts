@@ -6,21 +6,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder.ai";
   const supabase = createServerClient();
 
-  const [{ data: tools }, { data: workflows }, { data: stacks }] =
-    await Promise.all([
-      supabase.from("tools").select("slug,updated_at").eq("is_published", true),
-      supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
-      supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
-    ]);
+  const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
+    supabase.from("tools").select("slug,updated_at").eq("is_published", true),
+    supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
+    supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: base, priority: 1.0, changeFrequency: "daily" },
     { url: `${base}/find-stack`, priority: 0.95, changeFrequency: "daily" },
     { url: `${base}/tools`, priority: 0.9, changeFrequency: "daily" },
     { url: `${base}/workflows`, priority: 0.9, changeFrequency: "weekly" },
-    { url: `${base}/learn`, priority: 0.85, changeFrequency: "weekly" },
+    { url: `${base}/learn`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-stack-for-faceless-youtube`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-to-turn-long-videos-into-shorts`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/compare/opusclip-vs-klap-vs-vizard`, priority: 0.84, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-to-repurpose-podcast-into-clips`, priority: 0.84, changeFrequency: "weekly" },
+    { url: `${base}/learn/cheapest-ai-stack-for-faceless-youtube`, priority: 0.84, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-creators`, priority: 0.8, changeFrequency: "weekly" },
-    { url: `${base}/learn/best-ai-stack-for-faceless-youtube`, priority: 0.8, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-tiktok-content`, priority: 0.8, changeFrequency: "weekly" },
     { url: `${base}/stacks`, priority: 0.8, changeFrequency: "daily" },
     { url: `${base}/trending`, priority: 0.8, changeFrequency: "hourly" },
