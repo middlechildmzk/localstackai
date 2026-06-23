@@ -1,5 +1,6 @@
 import { buildMetadata } from "@/lib/seo";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
+import { ArticleDisclosure } from "@/components/learn/ArticleBlocks";
 import { Mail, Zap, Shield } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -45,6 +46,7 @@ export default function NewsletterPage() {
       <p className="text-center text-xs text-zinc-700 mt-4">
         Unsubscribe anytime. We never sell your email.
       </p>
+      <ArticleDisclosure />
     </div>
   );
 }
