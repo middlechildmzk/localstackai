@@ -6,6 +6,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = buildMetadata({ title: "AI Tools Knowledge Center", description: "Workflow-first AI tool guides, stack breakdowns, comparisons, and practical recommendations.", path: "/learn" });
 
 const articles = [
+  { href: "/learn/best-ai-app-builders", title: "Best AI App Builders", description: "Compare AI app builders for prototypes, MVPs, UI, and code workflows.", tag: "App builders" },
+  { href: "/learn/how-to-build-an-app-with-ai", title: "How to Build an App With AI", description: "Scope, prototype, database, auth, deployment, QA, and launch workflow.", tag: "App workflow" },
+  { href: "/learn/best-ai-tools-to-build-an-mvp", title: "Best AI Tools to Build an MVP", description: "A practical MVP stack for planning, app building, UI, deploy, feedback, and QA.", tag: "MVP stack" },
+  { href: "/learn/best-ai-website-builders-for-creators", title: "Best AI Website Builders for Creators", description: "Website builders for landing pages, creator sites, portfolios, and offers.", tag: "Website builders" },
+  { href: "/learn/how-to-build-a-website-with-ai", title: "How to Build a Website With AI", description: "Plan, write, design, launch, test, and capture leads with an AI website stack.", tag: "Website workflow" },
+  { href: "/learn/best-ai-tools-for-etsy-digital-products", title: "Best AI Tools for Etsy Digital Products", description: "Research, design, mockups, listing copy, packaging, and support tools.", tag: "Etsy" },
+  { href: "/learn/how-to-make-printables-to-sell-with-ai", title: "How to Make Printables to Sell With AI", description: "A practical workflow for planners, worksheets, checklists, and templates.", tag: "Printables" },
+  { href: "/learn/best-ai-tools-for-affiliate-marketing", title: "Best AI Tools for Affiliate Marketing", description: "Research, comparison pages, SEO, disclosure, email capture, and repurposing.", tag: "Affiliate" },
   { href: "/learn/best-ai-music-generators", title: "Best AI Music Generators", description: "Compare AI music tools by workflow fit for songs, demos, and creator content.", tag: "AI music" },
   { href: "/learn/can-you-sell-ai-generated-music", title: "Can You Sell AI-Generated Music?", description: "A cautious explainer for commercial use, distribution, and platform checks.", tag: "Music rights" },
   { href: "/alternatives/suno", title: "Best Suno Alternatives", description: "Compare Udio, Riffusion, Soundraw, and Mubert by use case.", tag: "Alternatives" },
