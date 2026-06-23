@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase";
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder.ai";
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder-ai.vercel.app";
   const supabase = createServerClient();
 
   const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
@@ -17,7 +17,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/find-stack`, priority: 0.95, changeFrequency: "daily" },
     { url: `${base}/tools`, priority: 0.9, changeFrequency: "daily" },
     { url: `${base}/workflows`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/stacks`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/learn`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/learn/ai-music`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/learn/ai-video`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/learn/ai-apps`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/learn/digital-products`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/learn/affiliate-marketing`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/stacks/ai-music-release-stack`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/stacks/faceless-video-stack`, priority: 0.87, changeFrequency: "weekly" },
+    { url: `${base}/stacks/no-code-mvp-stack`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/stacks/digital-product-stack`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/stacks/affiliate-content-stack`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/realistic-ways-to-make-money-with-ai`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-to-create-and-sell-digital-products`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-etsy-digital-products`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/learn/how-to-make-printables-to-sell-with-ai`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-affiliate-marketing`, priority: 0.86, changeFrequency: "weekly" },
@@ -33,6 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/learn/how-to-release-ai-music-on-spotify`, priority: 0.87, changeFrequency: "weekly" },
     { url: `${base}/compare/runway-vs-pika-vs-luma`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/compare/descript-vs-opusclip`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/compare/jasper-vs-copy-ai`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/compare/lovable-vs-bolt-vs-v0`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/compare/zapier-vs-make`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/compare/suno-vs-udio`, priority: 0.88, changeFrequency: "weekly" },
@@ -60,7 +74,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/learn/cheapest-ai-stack-for-faceless-youtube`, priority: 0.84, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-creators`, priority: 0.8, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-tiktok-content`, priority: 0.8, changeFrequency: "weekly" },
-    { url: `${base}/stacks`, priority: 0.8, changeFrequency: "daily" },
     { url: `${base}/trending`, priority: 0.8, changeFrequency: "hourly" },
     { url: `${base}/compare`, priority: 0.7, changeFrequency: "weekly" },
     { url: `${base}/affiliate-disclosure`, priority: 0.4, changeFrequency: "monthly" },
@@ -69,8 +82,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/methodology`, priority: 0.5, changeFrequency: "monthly" },
     { url: `${base}/submit`, priority: 0.5 },
     { url: `${base}/newsletter`, priority: 0.5 },
-    ...comparisons.map((slug) => ({ url: `${base}/compare/${slug}`, priority: 0.8 as const, changeFrequency: "weekly" as const })),
-    ...altPages.map((slug) => ({ url: `${base}/alternatives/${slug}`, priority: 0.8 as const, changeFrequency: "weekly" as const })),
   ];
 
   const toolRoutes: MetadataRoute.Sitemap = (tools ?? []).map((t: any) => ({ url: `${base}/tools/${t.slug}`, lastModified: t.updated_at, priority: 0.7, changeFrequency: "weekly" }));
@@ -79,6 +90,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticRoutes, ...toolRoutes, ...workflowRoutes, ...stackRoutes];
 }
-
-const comparisons = ["runway-vs-pika", "midjourney-vs-flux", "perplexity-vs-chatgpt"];
-const altPages = ["chatgpt", "claude", "runway", "midjourney", "notion-ai", "jasper", "zapier"];
