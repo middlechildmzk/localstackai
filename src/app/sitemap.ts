@@ -18,6 +18,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/tools`, priority: 0.9, changeFrequency: "daily" },
     { url: `${base}/workflows`, priority: 0.9, changeFrequency: "weekly" },
     { url: `${base}/learn`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-music-generators`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/learn/can-you-sell-ai-generated-music`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/alternatives/suno`, priority: 0.87, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-music-visualizer-tools`, priority: 0.87, changeFrequency: "weekly" },
+    { url: `${base}/learn/how-to-release-ai-music-on-spotify`, priority: 0.87, changeFrequency: "weekly" },
     { url: `${base}/compare/runway-vs-pika-vs-luma`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/compare/descript-vs-opusclip`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/compare/lovable-vs-bolt-vs-v0`, priority: 0.88, changeFrequency: "weekly" },
@@ -68,4 +73,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 
 const comparisons = ["runway-vs-pika", "midjourney-vs-flux", "perplexity-vs-chatgpt"];
-const altPages = ["chatgpt", "claude", "runway", "suno", "midjourney", "notion-ai", "jasper", "zapier"];
+const altPages = ["chatgpt", "claude", "runway", "midjourney", "notion-ai", "jasper", "zapier"];
