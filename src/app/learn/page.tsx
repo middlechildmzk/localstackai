@@ -6,6 +6,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = buildMetadata({ title: "AI Tools Knowledge Center", description: "Workflow-first AI tool guides, stack breakdowns, comparisons, and practical recommendations.", path: "/learn" });
 
 const articles = [
+  { href: "/learn/best-ai-music-generators", title: "Best AI Music Generators", description: "Compare AI music tools by workflow fit for songs, demos, and creator content.", tag: "AI music" },
+  { href: "/learn/can-you-sell-ai-generated-music", title: "Can You Sell AI-Generated Music?", description: "A cautious explainer for commercial use, distribution, and platform checks.", tag: "Music rights" },
+  { href: "/alternatives/suno", title: "Best Suno Alternatives", description: "Compare Udio, Riffusion, Soundraw, and Mubert by use case.", tag: "Alternatives" },
+  { href: "/learn/best-ai-music-visualizer-tools", title: "Best AI Music Visualizer Tools", description: "Tools for visualizers, lyric clips, cover animations, and music video assets.", tag: "Music visuals" },
+  { href: "/learn/how-to-release-ai-music-on-spotify", title: "How to Release AI Music on Spotify", description: "A practical release workflow with distributor, metadata, and promo checks.", tag: "Music release" },
   { href: "/compare/runway-vs-pika-vs-luma", title: "Runway vs Pika vs Luma", description: "AI video generators for creators, music visuals, and short-form clips.", tag: "Comparison" },
   { href: "/compare/descript-vs-opusclip", title: "Descript vs OpusClip", description: "Podcast editing, transcripts, clipping, and repurposing workflow.", tag: "Comparison" },
   { href: "/compare/lovable-vs-bolt-vs-v0", title: "Lovable vs Bolt vs v0", description: "AI app builders for prototypes, UI, and MVP workflows.", tag: "App builders" },
