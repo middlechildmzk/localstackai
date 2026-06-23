@@ -10,6 +10,9 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const articles = [
+  { href: "/compare/suno-vs-udio", title: "Suno vs Udio", description: "A workflow-first comparison for AI music creators, demos, vocals, commercial-use caution, and release stacks.", tag: "AI Music" },
+  { href: "/learn/best-ai-stack-for-music-artists", title: "Best AI Stack for Music Artists", description: "Create songs, visuals, album art, short clips, distribution assets, and promo content with a practical AI music stack.", tag: "Music stack" },
+  { href: "/compare/chatgpt-vs-claude", title: "ChatGPT vs Claude", description: "Compare AI assistants by workflow: writing, coding, research, documents, creator production, and stack building.", tag: "Comparison" },
   { href: "/learn/best-ai-stack-for-faceless-youtube", title: "Best AI Stack for Faceless YouTube Channels", description: "The flagship workflow: research, script, voice, visuals, edit, package, publish, and repurpose.", tag: "Faceless YouTube" },
   { href: "/learn/how-to-make-a-faceless-youtube-video-with-ai", title: "How to Make a Faceless YouTube Video With AI", description: "A practical step-by-step workflow for making a faceless video with human judgment in the loop.", tag: "How-to" },
   { href: "/learn/best-ai-video-generators-for-creators", title: "Best AI Video Generators for Creators", description: "A creator-first guide to AI video tools for avatars, social clips, faceless videos, and experiments.", tag: "AI video" },
@@ -36,7 +39,7 @@ export default function LearnPage() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-3 py-1.5 text-xs font-medium text-brand-300"><BookOpen size={13} /> Knowledge center beta</div>
           <h1 className="mb-5 text-4xl font-bold tracking-tight text-white sm:text-6xl" style={{ fontFamily: "var(--font-display)" }}>AI stacks for creators who want to ship.</h1>
-          <p className="max-w-3xl text-lg leading-8 text-zinc-400">Practical guides for faceless channels, short-form video, podcast repurposing, digital products, and creator workflows. Each article starts with the workflow, then maps the stack.</p>
+          <p className="max-w-3xl text-lg leading-8 text-zinc-400">Practical guides for faceless channels, short-form video, AI music, podcast repurposing, digital products, and creator workflows. Each article starts with the workflow, then maps the stack.</p>
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4 py-12"><div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{articles.map((article) => <Link key={article.href} href={article.href} className="rounded-3xl border border-white/10 bg-[#111118] p-6 transition-colors hover:border-brand-500/40"><span className="text-xs font-semibold uppercase tracking-widest text-brand-400">{article.tag}</span><h2 className="mt-4 text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{article.title}</h2><p className="mt-3 text-sm leading-6 text-zinc-400">{article.description}</p><span className="mt-5 inline-flex items-center gap-1 text-sm text-brand-400">Read guide <ArrowRight size={13} /></span></Link>)}</div></section>
