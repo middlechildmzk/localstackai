@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase";
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder-ai.vercel.app";
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilderai.com";
   const supabase = createServerClient();
 
   const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
