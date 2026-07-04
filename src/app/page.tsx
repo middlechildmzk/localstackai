@@ -10,6 +10,8 @@ import { ArrowRight, Zap, Shield, GitFork } from "lucide-react";
 import type { Tool, Workflow, Stack } from "@/types";
 import type { Metadata } from "next";
 
+const CANONICAL_APP_URL = "https://www.stackbuilderai.com";
+
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
@@ -61,10 +63,10 @@ export default async function HomePage() {
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "StackBuilder AI",
-          url: process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com",
+          url: CANONICAL_APP_URL,
           potentialAction: {
             "@type": "SearchAction",
-            target: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com"}/tools?q={search_term_string}`,
+            target: `${CANONICAL_APP_URL}/tools?q={search_term_string}`,
             "query-input": "required name=search_term_string",
           },
         }) }}
