@@ -4,6 +4,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PostHogProvider } from "@/components/layout/PostHogProvider";
 
+const CANONICAL_APP_URL = "https://www.stackbuilderai.com";
+
 export const metadata: Metadata = {
   title: {
     default: "StackBuilder AI: Build AI Stacks for Real Workflows",
@@ -11,9 +13,7 @@ export const metadata: Metadata = {
   },
   description:
     "Stop bookmarking AI tools. Build a stack that actually ships. Discover, compare, and share AI tool stacks for any workflow.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com"
-  ),
+  metadataBase: new URL(CANONICAL_APP_URL),
   openGraph: {
     type: "website",
     siteName: "StackBuilder AI",
