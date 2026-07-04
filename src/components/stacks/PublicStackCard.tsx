@@ -54,14 +54,18 @@ export function PublicStackCard({ stack }: { stack: Stack }) {
               : `~$${stack.monthly_cost}/mo`}
           </span>
         )}
-        <span className="flex items-center gap-1">
-          <GitFork size={11} />
-          {stack.fork_count} forks
-        </span>
-        <span className="flex items-center gap-1">
-          <Bookmark size={11} />
-          {stack.save_count} saves
-        </span>
+        {stack.fork_count > 0 && (
+          <span className="flex items-center gap-1">
+            <GitFork size={11} />
+            {stack.fork_count} forks
+          </span>
+        )}
+        {stack.save_count > 0 && (
+          <span className="flex items-center gap-1">
+            <Bookmark size={11} />
+            {stack.save_count} saves
+          </span>
+        )}
         {stack.owner && (
           <span className="ml-auto text-zinc-700">
             by {stack.owner.display_name ?? "Anonymous"}
