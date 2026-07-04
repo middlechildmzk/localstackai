@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!slugs) return {};
   const [a, b] = slugs;
   return buildMetadata({
-    title: `${a} vs ${b} — AI Tool Comparison`,
+    title: `${a} vs ${b}: AI Tool Comparison`,
     description: `Compare ${a} and ${b}: pricing, features, strengths, limitations, and stack use cases.`,
     path: `/compare/${slug}`,
   });
@@ -56,7 +56,6 @@ export default async function ComparePage({ params }: Props) {
     { label: "Starting price", a: formatPrice(toolA.starting_price, toolA.pricing_model), b: formatPrice(toolB.starting_price, toolB.pricing_model) },
     { label: "Freshness", a: freshnessLabel(toolA.freshness), b: freshnessLabel(toolB.freshness) },
     { label: "Stack count", a: String(toolA.stack_count), b: String(toolB.stack_count) },
-    { label: "Save count", a: String(toolA.save_count), b: String(toolB.save_count) },
   ];
 
   const faqJsonLd = {
@@ -124,8 +123,8 @@ export default async function ComparePage({ params }: Props) {
             className="grid grid-cols-3 px-4 py-3 border-b border-white/5 last:border-0 text-sm"
           >
             <span className="text-zinc-500">{label}</span>
-            <span className="text-center text-white">{a ?? "—"}</span>
-            <span className="text-center text-white">{b ?? "—"}</span>
+            <span className="text-center text-white">{a ?? "N/A"}</span>
+            <span className="text-center text-white">{b ?? "N/A"}</span>
           </div>
         ))}
       </div>
@@ -146,7 +145,7 @@ export default async function ComparePage({ params }: Props) {
                 ))}
               </ul>
             ) : (
-              <p className="text-zinc-600 text-sm">—</p>
+              <p className="text-zinc-600 text-sm">N/A</p>
             )}
           </div>
         ))}
