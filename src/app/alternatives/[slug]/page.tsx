@@ -71,7 +71,7 @@ export default async function AlternativesPage({ params }: Props) {
       "@type": "ListItem",
       position: i + 1,
       name: t.name,
-      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder.ai"}/tools/${t.slug}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com"}/tools/${t.slug}`,
     })),
   };
 

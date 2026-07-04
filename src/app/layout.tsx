@@ -6,13 +6,13 @@ import { PostHogProvider } from "@/components/layout/PostHogProvider";
 
 export const metadata: Metadata = {
   title: {
-    default: "StackBuilder AI — Build AI Stacks for Real Workflows",
+    default: "StackBuilder AI: Build AI Stacks for Real Workflows",
     template: "%s | StackBuilder AI",
   },
   description:
     "Stop bookmarking AI tools. Build a stack that actually ships. Discover, compare, and share AI tool stacks for any workflow.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder.ai"
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com"
   ),
   openGraph: {
     type: "website",

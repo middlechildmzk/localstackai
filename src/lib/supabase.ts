@@ -9,7 +9,16 @@ export const hasSupabaseServiceConfig = () =>
 
 // ─── Browser client (components) ─────────────────────────────────────────────
 export const createBrowserClient = () => {
-  if (!hasSupabaseConfig()) return createDemoClient() as any;
+  if (!hasSupabaseConfig()) {
+    // Trust rule: never silently serve demo data on the live site.
+    if (process.env.NEXT_PUBLIC_VERCEL_ENV === "production") {
+      throw new Error(
+        "Supabase env vars missing in production. Refusing to serve demo data."
+      );
+    }
+    console.warn("[stackbuilder] Supabase env missing; using demo data (dev only).");
+    return createDemoClient() as any;
+  }
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,7 +28,16 @@ export const createBrowserClient = () => {
 
 // ─── Server client (server actions / route handlers) ─────────────────────────
 export const createServerClient = () => {
-  if (!hasSupabaseServiceConfig()) return createDemoClient() as any;
+  if (!hasSupabaseServiceConfig()) {
+    // Trust rule: never silently serve demo data on the live site.
+    if (process.env.VERCEL_ENV === "production") {
+      throw new Error(
+        "Supabase env vars missing in production. Refusing to serve demo data."
+      );
+    }
+    console.warn("[stackbuilder] Supabase env missing; using demo data (dev only).");
+    return createDemoClient() as any;
+  }
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tool = await getTool(slug);
   if (!tool) return {};
   return buildMetadata({
-    title: `${tool.name} — AI Tool`,
+    title: `${tool.name}: Overview, Pricing, and Alternatives`,
     description: tool.tagline ?? tool.description ?? undefined,
     path: `/tools/${slug}`,
     image: tool.logo_url ?? undefined,

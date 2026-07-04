@@ -2,7 +2,7 @@ import { buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Methodology — How StackBuilder AI Recommends Tools",
+  title: "Methodology: How StackBuilder AI Recommends Tools",
   description: "How StackBuilder AI evaluates workflow fit, freshness, sponsored listings, corrections, and editorial recommendations during beta.",
   path: "/methodology",
 });

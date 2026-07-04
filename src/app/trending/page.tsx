@@ -7,7 +7,7 @@ import type { Tool } from "@/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Trending AI Tools",
-  description: "The hottest AI tools right now — ranked by saves, stack adds, and freshness. Never by votes alone.",
+  description: "The AI tools gaining momentum right now, scored daily on real activity and freshness. Never pay-to-rank.",
   path: "/trending",
 });
 
@@ -36,9 +36,9 @@ export default async function TrendingPage() {
           Trending AI Tools
         </h1>
         <p className="text-zinc-400">
-          Ranked by saves, stack adds, and freshness —{" "}
-          <strong className="text-white">never by votes alone.</strong>{" "}
-          Updated hourly.
+          Scored on real tool activity and freshness.{" "}
+          <strong className="text-white">Never pay-to-rank.</strong>{" "}
+          Updated daily.
         </p>
       </div>
 

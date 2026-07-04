@@ -91,14 +91,18 @@ export default async function StackPage({ params }: Props) {
                 ~${totalCost}/mo
               </span>
             )}
-            <span className="flex items-center gap-1">
-              <GitFork size={13} />
-              {stack.fork_count} forks
-            </span>
-            <span className="flex items-center gap-1">
-              <Bookmark size={13} />
-              {stack.save_count} saves
-            </span>
+            {stack.fork_count > 0 && (
+              <span className="flex items-center gap-1">
+                <GitFork size={13} />
+                {stack.fork_count} forks
+              </span>
+            )}
+            {stack.save_count > 0 && (
+              <span className="flex items-center gap-1">
+                <Bookmark size={13} />
+                {stack.save_count} saves
+              </span>
+            )}
             {stack.workflow && (
               <Link
                 href={`/workflows/${stack.workflow.slug}`}
