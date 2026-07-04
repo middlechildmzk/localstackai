@@ -8,6 +8,11 @@ import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import Link from "next/link";
 import { ArrowRight, Zap, Shield, GitFork } from "lucide-react";
 import type { Tool, Workflow, Stack } from "@/types";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 async function getHomepageData() {
   const supabase = createServerClient();
@@ -56,10 +61,10 @@ export default async function HomePage() {
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "StackBuilder AI",
-          url: process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder.ai",
+          url: process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com",
           potentialAction: {
             "@type": "SearchAction",
-            target: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://stackbuilder.ai"}/tools?q={search_term_string}`,
+            target: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com"}/tools?q={search_term_string}`,
             "query-input": "required name=search_term_string",
           },
         }) }}
@@ -157,7 +162,7 @@ export default async function HomePage() {
                 Trending This Week
               </h2>
               <p className="text-zinc-500 text-sm mt-1">
-                Ranked by saves, stack adds, and freshness — never votes alone.
+                Scored daily on real tool activity and freshness. Never pay-to-rank.
               </p>
             </div>
             <Link
@@ -247,7 +252,7 @@ export default async function HomePage() {
             Get the best AI stacks every week
           </h2>
           <p className="text-zinc-400 mb-8">
-            Fresh tools, new stacks, and workflow guides — no fluff.
+            Fresh tools, new stacks, and workflow guides. No fluff.
           </p>
           <NewsletterForm />
         </div>
