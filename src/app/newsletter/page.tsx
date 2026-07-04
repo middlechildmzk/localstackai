@@ -5,7 +5,7 @@ import { Mail, Zap, Shield } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Newsletter — Get the Best AI Stacks Weekly",
+  title: "Newsletter: Get the Best AI Stacks Weekly",
   description: "Fresh AI tools, new stacks, and workflow guides every week. No fluff.",
   path: "/newsletter",
 });
