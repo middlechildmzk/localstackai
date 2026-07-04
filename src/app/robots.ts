@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 
+const CANONICAL_APP_URL = "https://www.stackbuilderai.com";
+
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.stackbuilderai.com";
+  const base = CANONICAL_APP_URL;
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow: ["/admin", "/api", "/go"] },
