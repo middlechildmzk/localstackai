@@ -13,6 +13,8 @@ import type { Metadata } from "next";
 const CANONICAL_APP_URL = "https://www.stackbuilderai.com";
 
 export const metadata: Metadata = {
+  title: "Build an AI Tool Stack for Your Workflow",
+  description: "Compare AI tools, workflows, and practical stacks by job. Build a usable AI workflow with cost and tradeoff context instead of collecting disconnected tools.",
   alternates: { canonical: "/" },
 };
 
@@ -64,6 +66,7 @@ export default async function HomePage() {
           "@type": "WebSite",
           name: "StackBuilder AI",
           url: CANONICAL_APP_URL,
+          description: "A workflow-first AI tool comparison and stack-building resource.",
           potentialAction: {
             "@type": "SearchAction",
             target: `${CANONICAL_APP_URL}/tools?q={search_term_string}`,
@@ -71,9 +74,7 @@ export default async function HomePage() {
           },
         }) }}
       />
-      {/* Hero */}
       <section className="relative pt-20 pb-16 px-4 overflow-hidden">
-        {/* Ambient glow */}
         <div
           aria-hidden
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-20 pointer-events-none"
@@ -87,7 +88,7 @@ export default async function HomePage() {
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-400 text-xs font-medium">
             <Zap size={12} />
-            Workflow-first AI stack graph · V21
+            Workflow-first AI tool comparison
           </div>
 
           <h1
@@ -100,165 +101,54 @@ export default async function HomePage() {
             for your workflow.
           </h1>
 
-          <p className="text-lg text-zinc-400 mb-10 max-w-2xl mx-auto">
-            Stop bookmarking AI tools. Build a stack that actually ships. Find,
-            compare, save, and share AI tool stacks for any workflow.
+          <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-9 leading-relaxed">
+            Compare tools by the job they need to do, then assemble a practical workflow with clearer tradeoffs, cost context, and alternatives.
           </p>
-
-          <div className="flex flex-col sm:flex-row justify-center gap-3 mb-6">
-            <Link href="/stacks/new" className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold rounded-xl transition-colors">
-              Start Your Stack <ArrowRight size={15} />
-            </Link>
-            <Link href="/stacks" className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 hover:border-white/20 text-zinc-300 text-sm font-medium rounded-xl transition-all">
-              Browse Stacks
-            </Link>
-          </div>
 
           <HeroStackSearch />
-
-          <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-zinc-500">
-            {["YouTube Shorts", "Solopreneurs", "Content Repurposing", "Agencies", "Podcast Production"].map(
-              (tag) => (
-                <Link
-                  key={tag}
-                  href={`/workflows?q=${encodeURIComponent(tag)}`}
-                  className="hover:text-brand-400 transition-colors"
-                >
-                  {tag} →
-                </Link>
-              )
-            )}
-          </div>
         </div>
       </section>
 
-      {/* Trust bar */}
-      <section className="border-y border-white/5 py-5 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-8 text-sm text-zinc-500">
-          {[
-            { icon: <Shield size={14} />, label: "Human-verified freshness" },
-            { icon: <Zap size={14} />, label: "Workflow-first discovery" },
-            { icon: <GitFork size={14} />, label: "Fork any public stack" },
-          ].map(({ icon, label }) => (
-            <div key={label} className="flex items-center gap-2">
-              <span className="text-brand-500">{icon}</span>
-              {label}
-            </div>
-          ))}
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-            Sponsored listings always labeled
-          </div>
+      <section className="py-10 px-4">
+        <div className="max-w-6xl mx-auto grid gap-4 sm:grid-cols-3">
+          <Link href="/tools" className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 hover:border-zinc-700">
+            <Shield className="text-brand-400 mb-3" size={20} />
+            <h2 className="text-lg font-semibold text-white">Compare individual AI tools</h2>
+            <p className="mt-2 text-sm text-zinc-400">Use structured tool pages and comparisons to understand fit before adding another subscription.</p>
+          </Link>
+          <Link href="/workflows" className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 hover:border-zinc-700">
+            <GitFork className="text-brand-400 mb-3" size={20} />
+            <h2 className="text-lg font-semibold text-white">Start with the workflow</h2>
+            <p className="mt-2 text-sm text-zinc-400">See which tools belong together for a concrete task rather than browsing an undifferentiated directory.</p>
+          </Link>
+          <Link href="/find-stack" className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 hover:border-zinc-700">
+            <Zap className="text-brand-400 mb-3" size={20} />
+            <h2 className="text-lg font-semibold text-white">Find a stack by job</h2>
+            <p className="mt-2 text-sm text-zinc-400">Describe what you are trying to accomplish and narrow the tool set around that outcome.</p>
+          </Link>
         </div>
       </section>
 
-      {/* Trending Tools */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2
-                className="text-2xl font-bold text-white"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Trending This Week
-              </h2>
-              <p className="text-zinc-500 text-sm mt-1">
-                Scored daily on real tool activity and freshness. Never pay-to-rank.
-              </p>
-            </div>
-            <Link
-              href="/trending"
-              className="flex items-center gap-1 text-sm text-brand-400 hover:text-brand-300 transition-colors"
-            >
-              View all <ArrowRight size={14} />
-            </Link>
+      <section className="py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-end justify-between gap-4 mb-6">
+            <div><p className="text-xs uppercase tracking-widest text-brand-400 mb-2">Tools</p><h2 className="text-2xl font-semibold text-white">Explore popular AI tools</h2></div>
+            <Link href="/tools" className="text-sm text-zinc-300 hover:text-white inline-flex items-center gap-1">View tools <ArrowRight size={14}/></Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tools.map((tool, i) => (
-              <ToolCard key={tool.id} tool={tool} rank={i + 1} />
-            ))}
-          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{tools.map((tool) => <ToolCard key={tool.id} tool={tool} />)}</div>
         </div>
       </section>
 
-      {/* Workflows */}
-      <section className="py-16 px-4 bg-[#111118]/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2
-                className="text-2xl font-bold text-white"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Popular Workflows
-              </h2>
-              <p className="text-zinc-500 text-sm mt-1">
-                Curated tool stacks for real outcomes.
-              </p>
-            </div>
-            <Link
-              href="/workflows"
-              className="flex items-center gap-1 text-sm text-brand-400 hover:text-brand-300 transition-colors"
-            >
-              All workflows <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {workflows.map((w) => (
-              <WorkflowCard key={w.id} workflow={w} />
-            ))}
-          </div>
+      <section className="py-12 px-4 border-t border-zinc-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-end justify-between gap-4 mb-6"><div><p className="text-xs uppercase tracking-widest text-brand-400 mb-2">Workflows</p><h2 className="text-2xl font-semibold text-white">Build around a real outcome</h2></div><Link href="/workflows" className="text-sm text-zinc-300 hover:text-white inline-flex items-center gap-1">View workflows <ArrowRight size={14}/></Link></div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{workflows.map((workflow) => <WorkflowCard key={workflow.id} workflow={workflow} />)}</div>
         </div>
       </section>
 
-      {/* Featured Stacks */}
-      {stacks.length > 0 && (
-        <section className="py-16 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2
-                  className="text-2xl font-bold text-white"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  Featured Stacks
-                </h2>
-                <p className="text-zinc-500 text-sm mt-1">
-                  Built and shared by the community.
-                </p>
-              </div>
-              <Link
-                href="/stacks"
-                className="flex items-center gap-1 text-sm text-brand-400 hover:text-brand-300 transition-colors"
-              >
-                Browse stacks <ArrowRight size={14} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {stacks.map((stack) => (
-                <PublicStackCard key={stack.id} stack={stack} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {stacks.length > 0 && <section className="py-12 px-4 border-t border-zinc-900"><div className="max-w-6xl mx-auto"><div className="flex items-end justify-between gap-4 mb-6"><div><p className="text-xs uppercase tracking-widest text-brand-400 mb-2">Stacks</p><h2 className="text-2xl font-semibold text-white">See complete tool combinations</h2></div><Link href="/stacks" className="text-sm text-zinc-300 hover:text-white inline-flex items-center gap-1">View stacks <ArrowRight size={14}/></Link></div><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{stacks.map((stack) => <PublicStackCard key={stack.id} stack={stack} />)}</div></div></section>}
 
-      {/* Newsletter */}
-      <section className="py-20 px-4">
-        <div className="max-w-xl mx-auto text-center">
-          <h2
-            className="text-3xl font-bold text-white mb-3"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Get the best AI stacks every week
-          </h2>
-          <p className="text-zinc-400 mb-8">
-            Fresh tools, new stacks, and workflow guides. No fluff.
-          </p>
-          <NewsletterForm />
-        </div>
-      </section>
+      <section className="py-16 px-4 border-t border-zinc-900"><div className="max-w-3xl mx-auto text-center"><h2 className="text-2xl font-semibold text-white mb-3">Get practical AI workflow research</h2><p className="text-zinc-400 mb-6">New comparisons, workflow guides, and stack updates without the tool-directory noise.</p><div className="max-w-xl mx-auto"><NewsletterForm /></div></div></section>
     </div>
   );
 }
