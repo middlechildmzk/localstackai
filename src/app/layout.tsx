@@ -12,19 +12,26 @@ export const metadata: Metadata = {
     template: "%s | StackBuilder AI",
   },
   description:
-    "Stop bookmarking AI tools. Build a stack that actually ships. Discover, compare, and share AI tool stacks for any workflow.",
+    "Compare AI tools and assemble practical workflows for real jobs. StackBuilder AI focuses on tool combinations, workflow fit, tradeoffs, and cost—not just another directory.",
   metadataBase: new URL(CANONICAL_APP_URL),
   openGraph: {
     type: "website",
     siteName: "StackBuilder AI",
+    title: "StackBuilder AI: Build AI Stacks for Real Workflows",
+    description:
+      "Compare AI tools and assemble practical workflows for real jobs, with explicit tradeoffs and cost context.",
+    url: CANONICAL_APP_URL,
   },
   twitter: {
     card: "summary_large_image",
+    title: "StackBuilder AI: Build AI Stacks for Real Workflows",
+    description:
+      "Compare AI tools and assemble practical workflows for real jobs, with explicit tradeoffs and cost context.",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   },
 };
 
@@ -35,7 +42,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
       <body>
         <PostHogProvider>
           <div className="relative z-10 flex flex-col min-h-screen">
