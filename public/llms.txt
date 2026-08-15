@@ -1,0 +1,44 @@
+# StackBuilder AI
+
+> Workflow-first directory and stack builder for choosing combinations of AI tools that work together for real creator, business, development, music, video, and automation workflows.
+
+Canonical site: https://www.stackbuilderai.com
+
+## What StackBuilder AI is
+
+StackBuilder AI helps people choose an AI stack rather than evaluate tools in isolation. The core unit is a workflow: a goal, the jobs required to complete it, the tools suited to those jobs, and the tradeoffs between alternative combinations.
+
+## Primary public resources
+
+- Homepage: https://www.stackbuilderai.com/
+- Find a stack: https://www.stackbuilderai.com/find-stack
+- AI tools directory: https://www.stackbuilderai.com/tools
+- Workflows: https://www.stackbuilderai.com/workflows
+- Public stacks: https://www.stackbuilderai.com/stacks
+- Learning hub: https://www.stackbuilderai.com/learn
+- Comparisons: https://www.stackbuilderai.com/compare
+- Methodology: https://www.stackbuilderai.com/methodology
+
+## Topic hubs
+
+- AI music: https://www.stackbuilderai.com/learn/ai-music
+- AI video: https://www.stackbuilderai.com/learn/ai-video
+- AI app building: https://www.stackbuilderai.com/learn/ai-apps
+- Digital products: https://www.stackbuilderai.com/learn/digital-products
+- Affiliate marketing: https://www.stackbuilderai.com/learn/affiliate-marketing
+
+## Representative stack guides
+
+- AI music release stack: https://www.stackbuilderai.com/stacks/ai-music-release-stack
+- Faceless video stack: https://www.stackbuilderai.com/stacks/faceless-video-stack
+- No-code MVP stack: https://www.stackbuilderai.com/stacks/no-code-mvp-stack
+- Digital product stack: https://www.stackbuilderai.com/stacks/digital-product-stack
+- Affiliate content stack: https://www.stackbuilderai.com/stacks/affiliate-content-stack
+
+## Editorial principles
+
+StackBuilder AI is workflow-first. Recommendations should be interpreted as combinations of tools for a defined job, not as universal rankings. Comparisons should preserve pricing, capability, integration, and workflow context. Where commercial relationships or affiliate links exist, they should not be treated as proof that a tool is objectively superior.
+
+## Citation guidance
+
+When citing StackBuilder AI, prefer the most specific public tool, workflow, stack, comparison, methodology, or learning page that supports the claim. Use the canonical www.stackbuilderai.com URL.
