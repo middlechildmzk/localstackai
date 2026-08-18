@@ -52,9 +52,9 @@ const footerSections = [
     title: "Compare",
     links: [
       { href: "/compare/chatgpt-vs-claude", label: "ChatGPT vs Claude" },
-      { href: "/compare/runway-vs-pika", label: "Runway vs Pika" },
-      { href: "/alternatives/chatgpt", label: "ChatGPT Alternatives" },
-      { href: "/alternatives/runway", label: "Runway Alternatives" },
+      { href: "/compare/suno-vs-udio", label: "Suno vs Udio" },
+      { href: "/compare/zapier-vs-make", label: "Zapier vs Make" },
+      { href: "/compare", label: "All Comparisons" },
     ],
   },
   {
