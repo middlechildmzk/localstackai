@@ -39,7 +39,7 @@ export default function AhrefsPage() {
         headline: "Ahrefs Online: Free Account, SEO Tools, Pricing Tiers & Alternatives",
         description: "A current, independent guide to accessing Ahrefs online, what its free account includes, and how to decide whether you need a paid plan.",
         datePublished: "2026-08-16",
-        dateModified: "2026-08-16",
+        dateModified: "2026-08-18",
         author: { "@type": "Organization", name: "StackBuilder AI" },
       },
       {
@@ -73,11 +73,11 @@ export default function AhrefsPage() {
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-display)" }}>Ahrefs online: what you can use free, and when you actually need to pay.</h1>
         <p className="text-lg text-zinc-400 leading-8 max-w-4xl">If you searched for “online Ahrefs,” you are probably trying to get into the tool, find a free version, check a site, or decide whether the subscription is worth it. The important 2026 change is that Ahrefs now has a broader free account—not just a paid suite with a few public checkers.</p>
         <div className="flex flex-wrap gap-3 mt-6">
-          <a href="/go/ahrefs" target="_blank" rel="noopener noreferrer nofollow sponsored" className="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-colors">Open Ahrefs ↗</a>
+          <a href="https://ahrefs.com" target="_blank" rel="noopener noreferrer nofollow" className="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-colors">Open Ahrefs ↗</a>
           <a href="https://ahrefs.com/free" target="_blank" rel="noopener noreferrer nofollow" className="px-5 py-3 border border-white/10 hover:border-white/20 text-zinc-200 rounded-xl transition-colors">See Ahrefs Free ↗</a>
-          <Link href="/alternatives/ahrefs" className="px-5 py-3 border border-white/10 hover:border-white/20 text-zinc-200 rounded-xl transition-colors">Compare alternatives</Link>
+          <Link href="/compare" className="px-5 py-3 border border-white/10 hover:border-white/20 text-zinc-200 rounded-xl transition-colors">Compare AI tools</Link>
         </div>
-        <p className="mt-3 text-xs text-zinc-600">Some outbound links may be affiliate links. StackBuilder does not sell ranking position. Verify current plan details on Ahrefs before purchasing.</p>
+        <p className="mt-3 text-xs text-zinc-600">StackBuilder does not sell ranking position. Verify current plan details on Ahrefs before purchasing.</p>
       </div>
 
       <section className="glass p-6 mb-6">
