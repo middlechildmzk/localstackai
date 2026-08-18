@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: base, priority: 1.0, changeFrequency: "weekly" },
     { url: `${base}/find-stack`, priority: 0.95, changeFrequency: "weekly" },
     { url: `${base}/tools`, priority: 0.9, changeFrequency: "daily" },
+    { url: `${base}/tools/ahrefs`, priority: 0.92, changeFrequency: "weekly" },
     { url: `${base}/workflows`, priority: 0.9, changeFrequency: "weekly" },
     { url: `${base}/stacks`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/learn`, priority: 0.9, changeFrequency: "weekly" },
