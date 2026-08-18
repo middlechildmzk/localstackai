@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase";
 import { buildMetadata } from "@/lib/seo";
 import { freshnessLabel, formatPrice } from "@/lib/utils";
+import { getFallbackTool } from "@/lib/fallback-tools";
 import Link from "next/link";
 import { logAnalyticsEvent } from "@/lib/analytics";
 import type { Metadata } from "next";
@@ -27,25 +28,58 @@ function bestForSummary(tool: any) {
   return tool.best_for.slice(0, 2).join(", ");
 }
 
+function freePlanLabel(value: boolean | null | undefined) {
+  if (value === true) return "✓ Yes";
+  if (value === false) return "✗ No";
+  return "? Verify";
+}
+
+function priceLabel(tool: any) {
+  if (tool?.data_source === "static_fallback") return "Verify on vendor site";
+  return formatPrice(tool?.starting_price, tool?.pricing_model);
+}
+
+function pricingAnswer(tool: any) {
+  if (tool?.data_source === "static_fallback") {
+    return `${tool.name} pricing is not carried in the static continuity record. Verify current pricing on the vendor-owned site before purchase.`;
+  }
+  return `${tool.name} is currently recorded at ${formatPrice(tool.starting_price, tool.pricing_model)}.`;
+}
+
+async function getComparisonTools(aSlug: string, bSlug: string) {
+  let dbTools: any[] = [];
+
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("tools")
+      .select("*")
+      .in("slug", [aSlug, bSlug])
+      .eq("is_published", true);
+    dbTools = data ?? [];
+  } catch {
+    dbTools = [];
+  }
+
+  const resolve = (slug: string) =>
+    dbTools.find((tool: any) => tool.slug === slug) ?? getFallbackTool(slug);
+
+  return [resolve(aSlug), resolve(bSlug)] as const;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const slugs = parseSlugs(slug);
   if (!slugs) return {};
 
   const [aSlug, bSlug] = slugs;
-  const supabase = createServerClient();
-  const { data: tools } = await supabase
-    .from("tools")
-    .select("slug,name")
-    .in("slug", [aSlug, bSlug])
-    .eq("is_published", true);
-
-  const aName = tools?.find((tool: any) => tool.slug === aSlug)?.name ?? titleizeSlug(aSlug);
-  const bName = tools?.find((tool: any) => tool.slug === bSlug)?.name ?? titleizeSlug(bSlug);
+  const [toolA, toolB] = await getComparisonTools(aSlug, bSlug);
+  const aName = toolA?.name ?? titleizeSlug(aSlug);
+  const bName = toolB?.name ?? titleizeSlug(bSlug);
 
   return buildMetadata({
     title: `${aName} vs ${bName} (2026): Which Fits Your Workflow?`,
-    description: `Compare ${aName} vs ${bName} by workflow fit, pricing model, free plan, freshness, and stack use. See what each is best for and what to verify before buying.`,
+    description: `Compare ${aName} vs ${bName} by workflow fit, pricing model, data freshness, and stack overlap. See what each is best for and what to verify before buying.`,
     path: `/compare/${slug}`,
   });
 }
@@ -55,32 +89,25 @@ export default async function ComparePage({ params }: Props) {
   const slugs = parseSlugs(slug);
   if (!slugs) notFound();
 
-  const supabase = createServerClient();
   const [toolASlug, toolBSlug] = slugs;
+  const [toolA, toolB] = await getComparisonTools(toolASlug, toolBSlug);
 
-  const { data: tools } = await supabase
-    .from("tools")
-    .select("*")
-    .in("slug", [toolASlug, toolBSlug])
-    .eq("is_published", true);
-
-  if (!tools || tools.length < 2) notFound();
-
-  const toolA = tools.find((t: any) => t.slug === toolASlug) ?? tools[0];
-  const toolB = tools.find((t: any) => t.slug === toolBSlug) ?? tools[1];
+  if (!toolA || !toolB) notFound();
 
   await logAnalyticsEvent({
     event_type: "compare_click",
     metadata: { tool_a: toolA.slug, tool_b: toolB.slug },
   });
 
+  const usesFallback = toolA.data_source === "static_fallback" || toolB.data_source === "static_fallback";
+
   const rows = [
     { label: "Best for", a: bestForSummary(toolA), b: bestForSummary(toolB) },
-    { label: "Pricing model", a: toolA.pricing_model?.replace("_", " "), b: toolB.pricing_model?.replace("_", " ") },
-    { label: "Free plan", a: toolA.has_free_plan ? "✓ Yes" : "✗ No", b: toolB.has_free_plan ? "✓ Yes" : "✗ No" },
-    { label: "Starting price", a: formatPrice(toolA.starting_price, toolA.pricing_model), b: formatPrice(toolB.starting_price, toolB.pricing_model) },
+    { label: "Pricing model", a: toolA.data_source === "static_fallback" ? "Verify current plans" : toolA.pricing_model?.replace("_", " "), b: toolB.data_source === "static_fallback" ? "Verify current plans" : toolB.pricing_model?.replace("_", " ") },
+    { label: "Free plan", a: freePlanLabel(toolA.has_free_plan), b: freePlanLabel(toolB.has_free_plan) },
+    { label: "Starting price", a: priceLabel(toolA), b: priceLabel(toolB) },
     { label: "Data freshness", a: freshnessLabel(toolA.freshness), b: freshnessLabel(toolB.freshness) },
-    { label: "Stack appearances", a: String(toolA.stack_count ?? 0), b: String(toolB.stack_count ?? 0) },
+    { label: "Stack appearances", a: toolA.data_source === "static_fallback" ? "Not available" : String(toolA.stack_count ?? 0), b: toolB.data_source === "static_fallback" ? "Not available" : String(toolB.stack_count ?? 0) },
   ];
 
   const faqJsonLd = {
@@ -100,7 +127,7 @@ export default async function ComparePage({ params }: Props) {
         name: `Which is cheaper, ${toolA.name} or ${toolB.name}?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `StackBuilder currently records ${toolA.name} starting at ${formatPrice(toolA.starting_price, toolA.pricing_model)} and ${toolB.name} starting at ${formatPrice(toolB.starting_price, toolB.pricing_model)}. Pricing changes frequently, so verify current vendor-owned pricing before purchase.`,
+          text: `${pricingAnswer(toolA)} ${pricingAnswer(toolB)}`,
         },
       },
       {
@@ -108,7 +135,7 @@ export default async function ComparePage({ params }: Props) {
         name: `Can ${toolA.name} and ${toolB.name} be used together?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `Possibly. The useful question is whether the tools perform distinct jobs in one workflow or create paid overlap. Map the input, output, handoff, and recurring cost before keeping both.`,
+          text: "Possibly. The useful question is whether the tools perform distinct jobs in one workflow or create paid overlap. Map the input, output, handoff, and recurring cost before keeping both.",
         },
       },
     ],
@@ -126,9 +153,17 @@ export default async function ComparePage({ params }: Props) {
           {toolA.name} vs {toolB.name}: which fits your workflow in 2026?
         </h1>
         <p className="text-zinc-400 mt-3 leading-relaxed">
-          Compare the job each tool is strongest at, current recorded pricing, free-plan availability, data freshness, and whether the two tools complement each other or simply duplicate the same step.
+          Compare the job each tool is strongest at, pricing availability, data freshness, and whether the two tools complement each other or simply duplicate the same step.
         </p>
       </div>
+
+      {usesFallback && (
+        <section className="glass p-4 mb-6 border border-yellow-500/20">
+          <p className="text-sm text-yellow-100/80 leading-relaxed">
+            <strong className="text-yellow-100">Continuity mode:</strong> StackBuilder&apos;s live tool database is temporarily unavailable, so this page is using a minimal vendor-identity fallback. Workflow categories remain available, but pricing, plan availability, stack counts, and other commercial fields must be verified on the vendor-owned sites.
+          </p>
+        </section>
+      )}
 
       <section className="glass p-5 mb-8 border border-brand-500/20">
         <p className="text-xs font-semibold text-brand-400 uppercase tracking-widest mb-2">Quick answer</p>
@@ -208,7 +243,7 @@ export default async function ComparePage({ params }: Props) {
       <section className="glass p-5 mb-8">
         <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-3">Quick verdict</h2>
         <p className="text-sm text-zinc-300 leading-relaxed">
-          The decision is not “which brand wins?” It is which tool owns a necessary step in your workflow with the least redundant spend. Start with workflow fit, then compare current cost and freshness.
+          The decision is not “which brand wins?” It is which tool owns a necessary step in your workflow with the least redundant spend. Start with workflow fit, then compare current cost and evidence.
         </p>
         <p className="text-xs text-zinc-600 mt-3">
           Data freshness: {toolA.name} — {freshnessLabel(toolA.freshness)} · {toolB.name} — {freshnessLabel(toolB.freshness)}. Verify vendor-owned sources before buying.
