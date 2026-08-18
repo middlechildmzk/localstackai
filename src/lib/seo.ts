@@ -14,18 +14,20 @@ export function buildMetadata({
   path?: string;
   image?: string;
 }): Metadata {
-  const fullTitle = title ? `${title} | ${APP_NAME}` : APP_NAME;
+  // The root layout already applies "%s | StackBuilder AI" to child titles.
+  // Keep this helper brand-neutral so Next.js does not render the suffix twice.
+  const pageTitle = title ?? APP_NAME;
   const desc =
     description ??
     "Build the right AI stack for your workflow in minutes. Discover, compare, and share AI tool stacks.";
 
   return {
-    title: fullTitle,
+    title: pageTitle,
     description: desc,
     metadataBase: new URL(APP_URL),
     alternates: { canonical: path },
     openGraph: {
-      title: fullTitle,
+      title: pageTitle,
       description: desc,
       url: `${APP_URL}${path}`,
       siteName: APP_NAME,
@@ -34,7 +36,7 @@ export function buildMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: fullTitle,
+      title: pageTitle,
       description: desc,
     },
   };
