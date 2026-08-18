@@ -17,13 +17,14 @@ export type FallbackTool = {
 };
 
 /**
- * Minimal continuity data for high-value comparison pages.
+ * Minimal continuity data for high-value comparison and editorial pages.
  *
  * This is intentionally NOT a pricing database. These records exist so an
  * unavailable Supabase project does not turn already-discovered comparison
- * URLs into 404s. Product identity and broad workflow category are sourced
- * from vendor-owned public product/help pages; commercial terms remain
- * explicitly unverified until the live data layer is available again.
+ * URLs or vendor CTAs into 404s/dead ends. Product identity, broad workflow
+ * category, and official vendor URL are sourced from vendor-owned public
+ * product/help pages; commercial terms remain explicitly unverified until the
+ * live data layer is available again.
  */
 export const FALLBACK_TOOLS: FallbackTool[] = [
   {
@@ -108,6 +109,74 @@ export const FALLBACK_TOOLS: FallbackTool[] = [
     freshness: "unverified",
     stack_count: 0,
     best_for: ["Meeting transcription and notes", "Meeting summaries and searchable conversation knowledge"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-opusclip",
+    slug: "opusclip",
+    name: "OpusClip",
+    tagline: "AI video clipping and short-form repurposing",
+    description: "OpusClip turns long-form video into short clips and supports AI clipping, captioning, reframing, B-roll, and social publishing workflows.",
+    website_url: "https://www.opus.pro",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["Long video to short clips", "Short-form video repurposing"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-elevenlabs",
+    slug: "elevenlabs",
+    name: "ElevenLabs",
+    tagline: "AI voice generation, narration, dubbing, and audio creation",
+    description: "ElevenLabs provides AI voice generation and creative audio tools for narration, speech, dubbing, sound, and related creator workflows.",
+    website_url: "https://elevenlabs.io",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["AI narration and voice generation", "Creator audio workflows"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-murf",
+    slug: "murf",
+    name: "Murf",
+    tagline: "AI voiceovers, dubbing, and text-to-speech workflows",
+    description: "Murf provides AI voiceover, dubbing, text-to-speech, and conversational voice tools for creator and business workflows.",
+    website_url: "https://murf.ai",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["Business voiceovers", "Text-to-speech and dubbing"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-play-ht",
+    slug: "play-ht",
+    name: "PlayHT",
+    tagline: "AI text-to-speech and voice API workflows",
+    description: "PlayHT provides AI text-to-speech models and APIs for generating and integrating voice output.",
+    website_url: "https://play.ht",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["Text-to-speech generation", "Voice API integrations"],
     is_published: true,
     data_source: "static_fallback",
   },
