@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createServerClient } from "@/lib/supabase";
 import Link from "next/link";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
@@ -8,12 +6,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerClient();
-  // Note: in production use session from cookies; service role used here for simplicity
-  // Production: replace with cookie-based session check
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
       <aside className="w-56 border-r border-white/5 bg-[#111118] p-4 shrink-0">
         <div className="mb-6">
           <span
