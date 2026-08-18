@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, GitCompare, Search, Shield, Sparkles } from "lucide-react";
 import { createServerClient } from "@/lib/supabase";
+import { FALLBACK_TOOLS } from "@/lib/fallback-tools";
 import { buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 
@@ -13,27 +14,33 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const featuredComparisons = [
-  { slug: "lovable-vs-perplexity", title: "Lovable vs Perplexity", note: "Cross-category comparison: decide whether these tools solve different jobs in the same workflow rather than treating them as direct substitutes." },
-  { slug: "semrush-vs-gemini", title: "Semrush vs Gemini", note: "Compare workflow ownership, overlap, recurring cost, and where a specialist product versus a broader AI tool belongs in the stack." },
-  { slug: "otter-vs-gemini", title: "Otter vs Gemini", note: "Compare what each tool contributes to a working stack and whether both are needed for the job you are trying to complete." },
-  { slug: "chatgpt-vs-claude", title: "ChatGPT vs Claude", note: "General assistant comparison for writing, coding, and analysis workflows." },
-  { slug: "suno-vs-udio", title: "Suno vs Udio", note: "AI music generation comparison for creator workflows." },
-  { slug: "zapier-vs-make", title: "Zapier vs Make", note: "Workflow automation and app-integration comparison." },
-  { slug: "perplexity-vs-chatgpt", title: "Perplexity vs ChatGPT", note: "Research-oriented and general-assistant workflow comparison." },
-  { slug: "runway-vs-pika", title: "Runway vs Pika", note: "AI video generation comparison for creator and agency stacks." },
-  { slug: "midjourney-vs-flux", title: "Midjourney vs FLUX", note: "AI image-generation comparison for creative-production workflows." },
+  { slug: "lovable-vs-perplexity", title: "Lovable vs Perplexity", note: "Cross-category comparison: decide whether these tools solve different jobs in the same workflow rather than treating them as direct substitutes.", searchDemand: true },
+  { slug: "semrush-vs-gemini", title: "Semrush vs Gemini", note: "Compare workflow ownership, overlap, recurring cost, and where a specialist product versus a broader AI tool belongs in the stack.", searchDemand: true },
+  { slug: "otter-vs-gemini", title: "Otter vs Gemini", note: "Compare what each tool contributes to a working stack and whether both are needed for the job you are trying to complete.", searchDemand: true },
+  { slug: "chatgpt-vs-claude", title: "ChatGPT vs Claude", note: "General assistant comparison for writing, coding, and analysis workflows.", searchDemand: false },
+  { slug: "suno-vs-udio", title: "Suno vs Udio", note: "AI music generation comparison for creator workflows.", searchDemand: false },
+  { slug: "zapier-vs-make", title: "Zapier vs Make", note: "Workflow automation and app-integration comparison.", searchDemand: false },
 ];
 
 export default async function CompareHubPage() {
-  const supabase = createServerClient();
-  const { data: tools } = await supabase
-    .from("tools")
-    .select("id,slug,name,tagline,pricing_model,starting_price,freshness,tool_score,stack_count")
-    .eq("is_published", true)
-    .order("tool_score", { ascending: false })
-    .limit(48);
+  let liveTools: any[] = [];
 
-  const toolCount = tools?.length ?? 0;
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("tools")
+      .select("id,slug,name,tagline,pricing_model,starting_price,freshness,tool_score,stack_count")
+      .eq("is_published", true)
+      .order("tool_score", { ascending: false })
+      .limit(48);
+    liveTools = data ?? [];
+  } catch {
+    liveTools = [];
+  }
+
+  const usingFallback = liveTools.length === 0;
+  const tools = usingFallback ? FALLBACK_TOOLS : liveTools;
+  const toolCount = tools.length;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -52,15 +59,21 @@ export default async function CompareHubPage() {
             </p>
           </div>
 
+          {usingFallback && (
+            <div className="mt-6 max-w-3xl rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm leading-6 text-yellow-100/75">
+              <strong className="text-yellow-100">Continuity mode:</strong> the live tool database is temporarily unavailable. The selector is showing a small set of vendor-identity fallback records; commercial terms must be verified on vendor-owned sites.
+            </div>
+          )}
+
           <form action="/compare" className="mt-10 rounded-2xl border border-white/10 bg-[#111118] p-3">
             <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
               <select name="a" className="h-12 rounded-xl border border-white/10 bg-black/30 px-4 text-sm text-zinc-300 outline-none focus:border-brand-500/60">
                 <option value="">Choose first tool</option>
-                {(tools ?? []).map((tool: any) => <option key={tool.slug} value={tool.slug}>{tool.name}</option>)}
+                {tools.map((tool: any) => <option key={tool.slug} value={tool.slug}>{tool.name}</option>)}
               </select>
               <select name="b" className="h-12 rounded-xl border border-white/10 bg-black/30 px-4 text-sm text-zinc-300 outline-none focus:border-brand-500/60">
                 <option value="">Choose second tool</option>
-                {(tools ?? []).map((tool: any) => <option key={tool.slug} value={tool.slug}>{tool.name}</option>)}
+                {tools.map((tool: any) => <option key={tool.slug} value={tool.slug}>{tool.name}</option>)}
               </select>
               <button formAction={compareAction} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-500">
                 Compare <ArrowRight size={15} />
@@ -69,7 +82,7 @@ export default async function CompareHubPage() {
           </form>
 
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Stat icon={<Search size={15} />} label="Tools available" value={toolCount} />
+            <Stat icon={<Search size={15} />} label={usingFallback ? "Fallback tools available" : "Tools available"} value={toolCount} />
             <Stat icon={<Shield size={15} />} label="Decision fields" value={6} />
             <Stat icon={<Sparkles size={15} />} label="Featured comparisons" value={featuredComparisons.length} />
           </div>
@@ -82,14 +95,14 @@ export default async function CompareHubPage() {
             <div>
               <p className="text-sm text-brand-400">High-intent comparisons</p>
               <h2 className="mt-1 text-2xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>Popular AI tool matchups</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">Start with the comparisons already attracting search demand, then use the selector above for any two published tools.</p>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">Start with the comparisons already attracting search demand, then use the selector above for supported tool pairs.</p>
             </div>
             <Link href="/tools" className="text-sm text-brand-400 hover:text-brand-300">Browse tools →</Link>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {featuredComparisons.map((item, index) => (
+            {featuredComparisons.map((item) => (
               <Link key={item.slug} href={`/compare/${item.slug}`} className="group rounded-2xl border border-white/10 bg-[#111118] p-5 transition-all hover:border-brand-500/50 hover:bg-white/[0.05]">
-                {index < 3 && <span className="mb-3 inline-flex rounded-full border border-brand-500/25 bg-brand-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-300">Search demand</span>}
+                {item.searchDemand && <span className="mb-3 inline-flex rounded-full border border-brand-500/25 bg-brand-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-300">Search demand</span>}
                 <h3 className="mb-2 font-semibold text-white group-hover:text-brand-200" style={{ fontFamily: "var(--font-display)" }}>{item.title}</h3>
                 <p className="text-sm leading-6 text-zinc-500">{item.note}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs text-brand-400">Open comparison <ArrowRight size={12} /></span>
