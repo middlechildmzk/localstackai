@@ -1,18 +1,11 @@
 export const dynamic = "force-dynamic";
-import { createServerClient } from "@/lib/supabase";
+import { createServerClient, hasSupabaseServiceConfig } from "@/lib/supabase";
 import type { MetadataRoute } from "next";
 
 const CANONICAL_APP_URL = "https://www.stackbuilderai.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = CANONICAL_APP_URL;
-  const supabase = createServerClient();
-
-  const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
-    supabase.from("tools").select("slug,updated_at").eq("is_published", true),
-    supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
-    supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
-  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: base, priority: 1.0, changeFrequency: "weekly" },
@@ -77,7 +70,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/learn/best-ai-tools-for-creators`, priority: 0.8, changeFrequency: "weekly" },
     { url: `${base}/learn/best-ai-tools-for-tiktok-content`, priority: 0.8, changeFrequency: "weekly" },
     { url: `${base}/trending`, priority: 0.8, changeFrequency: "daily" },
-    { url: `${base}/compare`, priority: 0.7, changeFrequency: "weekly" },
+    { url: `${base}/compare`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/compare/lovable-vs-perplexity`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/compare/semrush-vs-gemini`, priority: 0.9, changeFrequency: "weekly" },
+    { url: `${base}/compare/otter-vs-gemini`, priority: 0.9, changeFrequency: "weekly" },
     { url: `${base}/affiliate-disclosure`, priority: 0.4, changeFrequency: "monthly" },
     { url: `${base}/privacy`, priority: 0.4, changeFrequency: "monthly" },
     { url: `${base}/terms`, priority: 0.4, changeFrequency: "monthly" },
@@ -86,9 +82,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/newsletter`, priority: 0.5, changeFrequency: "monthly" },
   ];
 
-  const toolRoutes: MetadataRoute.Sitemap = (tools ?? []).map((t: any) => ({ url: `${base}/tools/${t.slug}`, lastModified: t.updated_at, priority: 0.7, changeFrequency: "weekly" }));
-  const workflowRoutes: MetadataRoute.Sitemap = (workflows ?? []).map((w: any) => ({ url: `${base}/workflows/${w.slug}`, lastModified: w.updated_at, priority: 0.8, changeFrequency: "weekly" }));
-  const stackRoutes: MetadataRoute.Sitemap = (stacks ?? []).map((s: any) => ({ url: `${base}/stacks/${s.slug}`, lastModified: s.updated_at, priority: 0.6, changeFrequency: "weekly" }));
+  if (!hasSupabaseServiceConfig()) return staticRoutes;
 
-  return [...staticRoutes, ...toolRoutes, ...workflowRoutes, ...stackRoutes];
+  try {
+    const supabase = createServerClient();
+    const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
+      supabase.from("tools").select("slug,updated_at").eq("is_published", true),
+      supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
+      supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
+    ]);
+
+    const toolRoutes: MetadataRoute.Sitemap = (tools ?? []).map((t: any) => ({ url: `${base}/tools/${t.slug}`, lastModified: t.updated_at, priority: 0.7, changeFrequency: "weekly" }));
+    const workflowRoutes: MetadataRoute.Sitemap = (workflows ?? []).map((w: any) => ({ url: `${base}/workflows/${w.slug}`, lastModified: w.updated_at, priority: 0.8, changeFrequency: "weekly" }));
+    const stackRoutes: MetadataRoute.Sitemap = (stacks ?? []).map((s: any) => ({ url: `${base}/stacks/${s.slug}`, lastModified: s.updated_at, priority: 0.6, changeFrequency: "weekly" }));
+
+    return [...staticRoutes, ...toolRoutes, ...workflowRoutes, ...stackRoutes];
+  } catch {
+    return staticRoutes;
+  }
 }
