@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
 const canonical = "https://www.stackbuilderai.com/submit";
+const title = "Submit an AI Tool | StackBuilder AI";
+const description = "Submit an AI tool for human review by StackBuilder AI.";
 
 export const metadata: Metadata = {
-  title: "Submit an AI Tool | StackBuilder AI",
-  description: "Submit an AI tool for human review by StackBuilder AI.",
+  title: { absolute: title },
+  description,
   alternates: { canonical },
   robots: {
     index: false,
@@ -15,11 +17,16 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Submit an AI Tool | StackBuilder AI",
-    description: "Submit an AI tool for human review by StackBuilder AI.",
+    title,
+    description,
     url: canonical,
     siteName: "StackBuilder AI",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
   },
 };
 
