@@ -8,11 +8,13 @@ export function buildMetadata({
   description,
   path = "",
   image,
+  type = "website",
 }: {
   title?: string;
   description?: string;
   path?: string;
   image?: string;
+  type?: "website" | "article";
 }): Metadata {
   // The root layout already applies "%s | StackBuilder AI" to child titles.
   // Keep this helper brand-neutral so Next.js does not render the suffix twice.
@@ -31,13 +33,43 @@ export function buildMetadata({
       description: desc,
       url: `${APP_URL}${path}`,
       siteName: APP_NAME,
-      type: "website",
+      type,
       images: image ? [{ url: image }] : [],
     },
     twitter: {
       card: "summary_large_image",
       title: pageTitle,
       description: desc,
+    },
+  };
+}
+
+export function articleJsonLd({
+  title,
+  description,
+  path,
+  datePublished,
+  dateModified,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  datePublished?: string;
+  dateModified?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description,
+    url: `${APP_URL}${path}`,
+    mainEntityOfPage: `${APP_URL}${path}`,
+    ...(datePublished ? { datePublished } : {}),
+    ...(dateModified ? { dateModified } : {}),
+    publisher: {
+      "@type": "Organization",
+      name: APP_NAME,
+      url: APP_URL,
     },
   };
 }
