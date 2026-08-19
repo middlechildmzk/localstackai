@@ -79,7 +79,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/privacy`, priority: 0.4, changeFrequency: "monthly" },
     { url: `${base}/terms`, priority: 0.4, changeFrequency: "monthly" },
     { url: `${base}/methodology`, priority: 0.5, changeFrequency: "monthly" },
-    { url: `${base}/submit`, priority: 0.5, changeFrequency: "monthly" },
     { url: `${base}/newsletter`, priority: 0.5, changeFrequency: "monthly" },
   ];
 
@@ -89,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = createServerClient();
     const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
       supabase.from("tools").select("slug,updated_at").eq("is_published", true),
-      supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
+      supabase.from("workflows").select("slug,updated_at").eq("visibility", "public"),
       supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
     ]);
 
