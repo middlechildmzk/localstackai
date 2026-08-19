@@ -1,13 +1,24 @@
 import { ArticleDisclosure, CautionBox, FAQBlock, HowWeChose, LastUpdated, QuickAnswer, RecommendedStackBlock, RelatedLinks, StackCta, TierGrid, WorkflowCard } from "@/components/learn/ArticleBlocks";
-import { buildMetadata } from "@/lib/seo";
+import { articleJsonLd, buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 
 const updated = "2026-06-23";
+const title = "Best AI Stack for Music Artists";
+const description = "A practical AI stack for independent musicians: song creation, visuals, album art, short-form clips, distribution, promotion, and commercial-use caution.";
+const path = "/learn/best-ai-stack-for-music-artists";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Best AI Stack for Music Artists",
-  description: "A practical AI stack for independent musicians: song creation, visuals, album art, short-form clips, distribution, promotion, and commercial-use caution.",
-  path: "/learn/best-ai-stack-for-music-artists",
+  title,
+  description,
+  path,
+  type: "article",
+});
+
+const articleSchema = articleJsonLd({
+  title,
+  description,
+  path,
+  dateModified: updated,
 });
 
 const tiers: Array<[string, string, string]> = [
@@ -19,6 +30,7 @@ const tiers: Array<[string, string, string]> = [
 export default function Page() {
   return (
     <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <p className="text-xs font-semibold uppercase tracking-widest text-brand-400">Music creator stack</p>
       <h1 className="mt-3 text-4xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>Best AI Stack for Music Artists</h1>
       <p className="mt-5 text-lg leading-8 text-zinc-400">AI music is not just a song generator. A useful artist stack helps you create tracks, make visuals, design album art, cut social clips, distribute music, and promote a release without turning it into low-effort slop.</p>
