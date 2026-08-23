@@ -3,9 +3,10 @@ import { createServerClient } from "@/lib/supabase";
 import { getFallbackTool } from "@/lib/fallback-tools";
 import { logAnalyticsEvent } from "@/lib/analytics";
 
-type RouteContext = { params: { slug: string } };
+type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function GET(req: NextRequest, { params }: RouteContext) {
+  const { slug } = await params;
   let tool: any = null;
 
   try {
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const { data } = await supabase
       .from("tools")
       .select("id,slug,website_url,affiliate_url,is_published")
-      .eq("slug", params.slug)
+      .eq("slug", slug)
       .eq("is_published", true)
       .single();
     tool = data ?? null;
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     tool = null;
   }
 
-  const fallback = getFallbackTool(params.slug);
+  const fallback = getFallbackTool(slug);
   const resolved = tool ?? fallback;
 
   if (!resolved) return NextResponse.redirect(new URL("/tools", req.url));
