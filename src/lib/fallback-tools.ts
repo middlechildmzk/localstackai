@@ -5,7 +5,7 @@ export type FallbackTool = {
   tagline: string;
   description: string;
   website_url: string;
-  affiliate_url: null;
+  affiliate_url: string | null;
   pricing_model: "unknown";
   has_free_plan: null;
   starting_price: null;
@@ -16,6 +16,11 @@ export type FallbackTool = {
   data_source: "static_fallback";
 };
 
+function partnerUrl(envName: string): string | null {
+  const value = process.env[envName]?.trim();
+  return value || null;
+}
+
 /**
  * Minimal continuity data for high-value comparison and editorial pages.
  *
@@ -25,8 +30,131 @@ export type FallbackTool = {
  * category, and official vendor URL are sourced from vendor-owned public
  * product/help pages; commercial terms remain explicitly unverified until the
  * live data layer is available again.
+ *
+ * Approved affiliate destinations can be injected through server-only Vercel
+ * environment variables. When none is configured, /go/* always falls back to
+ * the official vendor URL rather than a dead end.
  */
 export const FALLBACK_TOOLS: FallbackTool[] = [
+  {
+    id: "fallback-chatgpt",
+    slug: "chatgpt",
+    name: "ChatGPT",
+    tagline: "General-purpose AI assistant for writing, coding, research, planning, and creative work",
+    description: "ChatGPT is OpenAI's general-purpose AI assistant for writing, coding, research, planning, analysis, multimodal work, and broader productivity workflows.",
+    website_url: "https://chatgpt.com",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["General AI assistance", "Writing, coding, research, and planning"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-claude",
+    slug: "claude",
+    name: "Claude",
+    tagline: "AI assistant for writing, analysis, documents, coding, and careful long-context work",
+    description: "Claude is Anthropic's AI assistant for writing, analysis, document work, coding, research synthesis, and other knowledge workflows.",
+    website_url: "https://claude.ai",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["Long-form writing and editing", "Document and code reasoning"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-suno",
+    slug: "suno",
+    name: "Suno",
+    tagline: "AI music generation from text, lyrics, and musical direction",
+    description: "Suno is an AI music creation platform for generating songs and musical ideas from text, lyrics, and style direction.",
+    website_url: "https://suno.com",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["AI song generation", "Rapid music ideation"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-udio",
+    slug: "udio",
+    name: "Udio",
+    tagline: "AI music creation and song generation",
+    description: "Udio is an AI music creation platform for generating and developing songs from musical and lyrical direction.",
+    website_url: "https://www.udio.com",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["AI music creation", "Song ideation and generation"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-zapier",
+    slug: "zapier",
+    name: "Zapier",
+    tagline: "Workflow automation across apps and business processes",
+    description: "Zapier connects apps and automates multi-step business workflows, data movement, and routine operational tasks.",
+    website_url: "https://zapier.com",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["No-code workflow automation", "Connecting SaaS tools"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-make",
+    slug: "make",
+    name: "Make",
+    tagline: "Visual workflow automation and app integration",
+    description: "Make is a visual automation platform for connecting applications, transforming data, and orchestrating multi-step workflows.",
+    website_url: "https://www.make.com",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["Visual workflow automation", "Complex multi-step integrations"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
+  {
+    id: "fallback-ahrefs",
+    slug: "ahrefs",
+    name: "Ahrefs",
+    tagline: "SEO research, site auditing, keyword analysis, and competitive search intelligence",
+    description: "Ahrefs provides SEO research workflows including site auditing, keyword research, backlink analysis, rank tracking, and competitive search intelligence.",
+    website_url: "https://ahrefs.com",
+    affiliate_url: null,
+    pricing_model: "unknown",
+    has_free_plan: null,
+    starting_price: null,
+    freshness: "unverified",
+    stack_count: 0,
+    best_for: ["SEO research", "Backlink and competitive search analysis"],
+    is_published: true,
+    data_source: "static_fallback",
+  },
   {
     id: "fallback-lovable",
     slug: "lovable",
@@ -68,7 +196,7 @@ export const FALLBACK_TOOLS: FallbackTool[] = [
     tagline: "SEO, search visibility, and digital marketing workflow platform",
     description: "Semrush provides search visibility and digital marketing workflows including SEO research, site auditing, and AI-search visibility capabilities.",
     website_url: "https://www.semrush.com",
-    affiliate_url: null,
+    affiliate_url: partnerUrl("STACKBUILDER_SEMRUSH_AFFILIATE_URL"),
     pricing_model: "unknown",
     has_free_plan: null,
     starting_price: null,
@@ -119,7 +247,7 @@ export const FALLBACK_TOOLS: FallbackTool[] = [
     tagline: "AI video clipping and short-form repurposing",
     description: "OpusClip turns long-form video into short clips and supports AI clipping, captioning, reframing, B-roll, and social publishing workflows.",
     website_url: "https://www.opus.pro",
-    affiliate_url: null,
+    affiliate_url: partnerUrl("STACKBUILDER_OPUSCLIP_AFFILIATE_URL"),
     pricing_model: "unknown",
     has_free_plan: null,
     starting_price: null,
@@ -136,7 +264,7 @@ export const FALLBACK_TOOLS: FallbackTool[] = [
     tagline: "AI voice generation, narration, dubbing, and audio creation",
     description: "ElevenLabs provides AI voice generation and creative audio tools for narration, speech, dubbing, sound, and related creator workflows.",
     website_url: "https://elevenlabs.io",
-    affiliate_url: null,
+    affiliate_url: partnerUrl("STACKBUILDER_ELEVENLABS_AFFILIATE_URL"),
     pricing_model: "unknown",
     has_free_plan: null,
     starting_price: null,
