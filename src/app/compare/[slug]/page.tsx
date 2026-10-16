@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase";
 import { buildMetadata } from "@/lib/seo";
 import { freshnessLabel, formatPrice } from "@/lib/utils";
 import { getFallbackTool } from "@/lib/fallback-tools";
+import { VerdictBlock, buildCompareVerdict } from "@/components/compare/VerdictBlock";
 import Link from "next/link";
 import { logAnalyticsEvent } from "@/lib/analytics";
 import type { Metadata } from "next";
@@ -138,6 +139,14 @@ export default async function ComparePage({ params }: Props) {
           text: "Possibly. The useful question is whether the tools perform distinct jobs in one workflow or create paid overlap. Map the input, output, handoff, and recurring cost before keeping both.",
         },
       },
+      {
+        "@type": "Question",
+        name: "Is this comparison sponsored?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "No. Sponsored listings must be clearly labeled and do not silently override organic recommendations.",
+        },
+      },
     ],
   };
 
@@ -165,12 +174,7 @@ export default async function ComparePage({ params }: Props) {
         </section>
       )}
 
-      <section className="glass p-5 mb-8 border border-brand-500/20">
-        <p className="text-xs font-semibold text-brand-400 uppercase tracking-widest mb-2">Quick answer</p>
-        <p className="text-sm text-zinc-300 leading-relaxed">
-          Choose <strong className="text-white">{toolA.name}</strong> when your main job is closer to <strong className="text-white">{toolA.best_for?.[0] ?? "its strongest use case"}</strong>. Choose <strong className="text-white">{toolB.name}</strong> when your main job is closer to <strong className="text-white">{toolB.best_for?.[0] ?? "its strongest use case"}</strong>. If you need both, make sure they own different steps in the same workflow before paying for two subscriptions.
-        </p>
-      </section>
+      <VerdictBlock lines={buildCompareVerdict(toolA, toolB)} />
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         {[toolA, toolB].map((t: any) => (
@@ -253,8 +257,9 @@ export default async function ComparePage({ params }: Props) {
       <section className="glass p-5 mb-8">
         <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-3">FAQ</h2>
         <div className="space-y-4 text-sm">
-          <div><h3 className="font-semibold text-white">Which is better for my workflow?</h3><p className="text-zinc-400 mt-1">Use the primary job as the deciding variable. Then compare overlap, current pricing, limits, and how each tool hands work to the next step in your stack.</p></div>
-          <div><h3 className="font-semibold text-white">Can I use both?</h3><p className="text-zinc-400 mt-1">Yes when they own meaningfully different workflow steps. If both solve the same job, test whether the second subscription produces enough net-new value to justify the overlap.</p></div>
+          <div><h3 className="font-semibold text-white">Which is better, {toolA.name} or {toolB.name}?</h3><p className="text-zinc-400 mt-1">{toolA.name} is a stronger fit when your workflow is closer to {toolA.best_for?.[0] ?? "its core use cases"}; {toolB.name} is a stronger fit when your workflow is closer to {toolB.best_for?.[0] ?? "its core use cases"}. Compare the actual job, overlap with tools you already pay for, and current vendor terms before deciding.</p></div>
+          <div><h3 className="font-semibold text-white">Which is cheaper, {toolA.name} or {toolB.name}?</h3><p className="text-zinc-400 mt-1">{pricingAnswer(toolA)} {pricingAnswer(toolB)}</p></div>
+          <div><h3 className="font-semibold text-white">Can {toolA.name} and {toolB.name} be used together?</h3><p className="text-zinc-400 mt-1">Possibly. The useful question is whether the tools perform distinct jobs in one workflow or create paid overlap. Map the input, output, handoff, and recurring cost before keeping both.</p></div>
           <div><h3 className="font-semibold text-white">Is this comparison sponsored?</h3><p className="text-zinc-400 mt-1">No. Sponsored listings must be clearly labeled and do not silently override organic recommendations.</p></div>
         </div>
       </section>
