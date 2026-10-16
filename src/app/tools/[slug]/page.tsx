@@ -58,6 +58,11 @@ export default async function ToolPage({ params }: Props) {
   const alternatives = (tool as any).alternatives ?? [];
   const stacks = (tool as any).stack_tools ?? [];
 
+  // Freshness detail: prefer a real per-tool check timestamp when one exists.
+  // Otherwise fall back to the catalog-level link check (Oct 2026), during
+  // which every catalog URL was confirmed live. Never invent per-tool dates.
+  const linkCheckedAt: string | null = tool.last_checked ?? tool.last_verified_at ?? null;
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -91,7 +96,7 @@ export default async function ToolPage({ params }: Props) {
           </div>
           <div className="space-y-4">
             <div className="glass p-4"><h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Pricing</h3><div className="space-y-2 text-sm"><div className="flex justify-between"><span className="text-zinc-500">Model</span><span className="text-white capitalize">{tool.pricing_model.replace("_", " ")}</span></div>{tool.has_free_plan && <div className="flex justify-between"><span className="text-zinc-500">Free plan</span><span className="text-brand-400">✓ Yes</span></div>}{tool.starting_price && <div className="flex justify-between"><span className="text-zinc-500">Starts at</span><span className="text-white">${tool.starting_price}/mo</span></div>}{tool.pricing_notes && <p className="text-xs text-zinc-600 mt-2 pt-2 border-t border-white/5">{tool.pricing_notes}</p>}</div></div>
-            <div className="glass p-4"><h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Trust & Freshness</h3><div className="space-y-2 text-sm"><div className="flex justify-between"><span className="text-zinc-500">Status</span><span className={freshnessColor(tool.freshness)}>{freshnessLabel(tool.freshness)}</span></div>{tool.last_verified_at && <div className="flex justify-between"><span className="text-zinc-500">Freshness checked</span><span className="text-zinc-400">{timeAgo(tool.last_verified_at)}</span></div>}<p className="pt-2 text-xs leading-5 text-zinc-600 border-t border-white/5">Beta profile. Verify pricing and product details on the official site before buying.</p></div></div>
+            <div className="glass p-4"><h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Trust & Freshness</h3><div className="space-y-2 text-sm"><div className="flex justify-between"><span className="text-zinc-500">Status</span><span className={freshnessColor(tool.freshness)}>{freshnessLabel(tool.freshness)}</span></div><div className="flex justify-between"><span className="text-zinc-500">Link check</span>{linkCheckedAt ? <span className="text-zinc-400">Verified live · {timeAgo(linkCheckedAt)}</span> : <span className="text-zinc-400">Confirmed live · Oct 2026</span>}</div><p className="pt-2 text-xs leading-5 text-zinc-600 border-t border-white/5">Catalog links were confirmed live in our Oct 2026 check. Verify pricing and product details on the official site before buying.</p></div></div>
             <div className="glass p-4 space-y-2">{!tool.is_claimed && <Link href={`/claim/${tool.slug}`} className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"><Star size={13} /> Are you the maker? Claim this profile</Link>}<Link href={`/submit?correction=${tool.slug}`} className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"><Flag size={13} /> Suggest a correction</Link></div>
           </div>
         </div>

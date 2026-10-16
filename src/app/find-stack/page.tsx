@@ -5,6 +5,7 @@ import { createServerClient } from "@/lib/supabase";
 import { ToolCard } from "@/components/tools/ToolCard";
 import { WorkflowCard } from "@/components/workflows/WorkflowCard";
 import { buildMetadata } from "@/lib/seo";
+import { CostChip, stackCostSummary } from "./cost-rollup";
 import type { Metadata } from "next";
 import type { Tool, Workflow } from "@/types";
 
@@ -61,7 +62,13 @@ export default async function FindStackPage({ searchParams }: { searchParams: Pr
 function ResultHeader({ query }: { query: string }) { return <div className="rounded-2xl border border-brand-500/20 bg-brand-500/10 p-5"><p className="text-sm text-brand-200">Showing matches for:</p><h2 className="mt-1 text-2xl font-bold text-white">“{query}”</h2></div>; }
 
 function RecommendedWorkflow({ workflow, stackTools, query }: { workflow: Workflow; stackTools: Tool[]; query: string }) {
-  return <section className="rounded-3xl border border-white/10 bg-[#111118] p-6"><p className="text-sm font-medium text-brand-400">Recommended workflow</p><h2 className="mt-1 text-2xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{workflow.title}</h2>{workflow.description && <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">{workflow.description}</p>}{stackTools.length > 0 && <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">{stackTools.slice(0, 5).map((tool, index) => <Link key={tool.id} href={`/tools/${tool.slug}`} className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:border-brand-500/40"><div className="mb-2 text-xs font-mono text-zinc-600">Step {index + 1}</div><div className="font-semibold text-white">{tool.name}</div><p className="mt-2 line-clamp-3 text-xs leading-5 text-zinc-500">{tool.tagline}</p></Link>)}</div>}<div className="mt-6 flex flex-col gap-3 sm:flex-row"><Link href="/stacks/new" className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-500">Build this stack</Link><Link href={query ? `/tools?q=${encodeURIComponent(query)}` : "/tools"} className="inline-flex items-center justify-center rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-300 hover:border-white/20">Browse matching tools</Link></div></section>;
+  return <section className="rounded-3xl border border-white/10 bg-[#111118] p-6"><p className="text-sm font-medium text-brand-400">Recommended workflow</p><h2 className="mt-1 text-2xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{workflow.title}</h2>{workflow.description && <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">{workflow.description}</p>}{stackTools.length > 0 && <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">{stackTools.slice(0, 5).map((tool, index) => <Link key={tool.id} href={`/tools/${tool.slug}`} className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:border-brand-500/40"><div className="mb-2 flex items-center justify-between gap-2"><span className="text-xs font-mono text-zinc-600">Step {index + 1}</span><CostChip tool={tool} /></div><div className="font-semibold text-white">{tool.name}</div><p className="mt-2 line-clamp-3 text-xs leading-5 text-zinc-500">{tool.tagline}</p></Link>)}</div>}
+      {stackTools.length > 0 && (
+        <p className="mt-4 text-sm text-zinc-400">
+          {stackCostSummary(stackTools.slice(0, 5))}{" "}
+          <span className="text-zinc-600">Prices are shown as listed; we never invent them.</span>
+        </p>
+      )}<div className="mt-6 flex flex-col gap-3 sm:flex-row"><Link href="/stacks/new" className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-500">Build this stack</Link><Link href={query ? `/tools?q=${encodeURIComponent(query)}` : "/tools"} className="inline-flex items-center justify-center rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-300 hover:border-white/20">Browse matching tools</Link></div></section>;
 }
 
 function Results({ title, href, children }: { title: string; href: string; children: React.ReactNode }) { return <section><div className="mb-6 flex items-end justify-between gap-4"><h2 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{title}</h2><Link href={href} className="text-sm text-brand-400 hover:text-brand-300">View all →</Link></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{children}</div></section>; }
