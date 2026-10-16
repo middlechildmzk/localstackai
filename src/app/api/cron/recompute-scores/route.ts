@@ -10,7 +10,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, mode: "demo", message: "Score recompute skipped because Supabase env vars are not configured." });
   }
   const supabase = createServerClient();
-  const { error } = await supabase.rpc("compute_trending_scores");
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Trending first: compute_tool_scores() reads trending_scores.trending_score,
+  // so it must see this run's fresh values.
+  const { error: trendError } = await supabase.rpc("compute_trending_scores");
+  if (trendError) return NextResponse.json({ error: trendError.message }, { status: 500 });
+  // Loop 3 scoring: writes the full tool_score composite. The function is
+  // money-blind by construction — it never reads sponsorship data.
+  const { error: scoreError } = await supabase.rpc("compute_tool_scores");
+  if (scoreError) return NextResponse.json({ error: scoreError.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

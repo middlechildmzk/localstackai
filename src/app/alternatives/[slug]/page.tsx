@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, GitCompare, Repeat2, Shield, SlidersHorizonta
 import { createServerClient } from "@/lib/supabase";
 import { buildMetadata } from "@/lib/seo";
 import { ToolCard } from "@/components/tools/ToolCard";
+import { VerdictBlock, buildAlternativesVerdict } from "@/components/compare/VerdictBlock";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -32,7 +33,7 @@ export default async function AlternativesPage({ params }: Props) {
 
   const { data: tool } = await supabase
     .from("tools")
-    .select("id,slug,name,tagline,description,pricing_model,starting_price,has_free_plan,freshness,last_verified_at,stack_count")
+    .select("id,slug,name,tagline,description,pricing_model,starting_price,has_free_plan,best_for,freshness,last_verified_at,stack_count")
     .eq("slug", slug)
     .eq("is_published", true)
     .single();
@@ -113,6 +114,14 @@ export default async function AlternativesPage({ params }: Props) {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/5 px-4 py-10">
+        <div className="mx-auto max-w-7xl">
+          <VerdictBlock
+            lines={buildAlternativesVerdict(tool, displayTools[0] ?? null)}
+          />
         </div>
       </section>
 

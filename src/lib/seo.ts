@@ -88,7 +88,6 @@ export function toolJsonLd(tool: {
     description: tool.description ?? undefined,
     url: tool.website_url ?? `${APP_URL}/tools/${tool.slug}`,
     image: tool.logo_url ?? undefined,
-    applicationCategory: "BusinessApplication",
   };
 }
 
@@ -96,6 +95,7 @@ export function stackJsonLd(stack: {
   title: string;
   description?: string | null;
   slug: string;
+  tools?: Array<{ name: string; slug: string }>;
 }) {
   return {
     "@context": "https://schema.org",
@@ -103,5 +103,15 @@ export function stackJsonLd(stack: {
     name: stack.title,
     description: stack.description ?? undefined,
     url: `${APP_URL}/stacks/${stack.slug}`,
+    ...(stack.tools?.length
+      ? {
+          itemListElement: stack.tools.map((t, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: t.name,
+            url: `${APP_URL}/tools/${t.slug}`,
+          })),
+        }
+      : {}),
   };
 }

@@ -41,5 +41,8 @@ const adminNav = [
   { href: "/admin/claims", label: "Claims" },
   { href: "/admin/freshness", label: "Freshness Queue" },
   { href: "/admin/moderation", label: "Moderation" },
+  { href: "/admin/drafts", label: "Content Drafts" },
+  { href: "/admin/digests", label: "Digests" },
+  { href: "/admin/sponsorships", label: "Sponsorships" },
   { href: "/admin/analytics", label: "Analytics" },
 ];

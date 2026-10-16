@@ -79,7 +79,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/privacy`, priority: 0.4, changeFrequency: "monthly" },
     { url: `${base}/terms`, priority: 0.4, changeFrequency: "monthly" },
     { url: `${base}/methodology`, priority: 0.5, changeFrequency: "monthly" },
+    { url: `${base}/advertising`, priority: 0.5, changeFrequency: "monthly" },
+    { url: `${base}/showcase`, priority: 0.6, changeFrequency: "weekly" },
     { url: `${base}/newsletter`, priority: 0.5, changeFrequency: "monthly" },
+    { url: `${base}/compare/runway-vs-pika`, priority: 0.88, changeFrequency: "weekly" },
+    { url: `${base}/compare/gumloop-vs-zapier`, priority: 0.88, changeFrequency: "weekly" },
   ];
 
   if (!hasSupabaseServiceConfig()) return staticRoutes;

@@ -45,7 +45,17 @@ export default async function StackPage({ params }: Props) {
     entity_type: "stack",
   });
 
-  const jsonLd = stackJsonLd(stack);
+  const stackTools: Array<{ name: string; slug: string }> = (
+    stack.stack_tools ?? []
+  )
+    .slice()
+    .sort((a: any, b: any) => (a.step_order ?? 0) - (b.step_order ?? 0))
+    .map((st: any) => ({
+      name: String(st.tool?.name ?? st.tool_name ?? "Tool"),
+      slug: String(st.tool?.slug ?? st.tool_slug ?? ""),
+    }))
+    .filter((t: { name: string; slug: string }) => t.slug.length > 0);
+  const jsonLd = stackJsonLd({ ...stack, tools: stackTools });
   const tools = stack.stack_tools?.sort((a: any, b: any) => a.step_order - b.step_order) ?? [];
   const totalCost = tools.reduce((sum: number, st: any) => sum + (st.monthly_cost ?? 0), 0);
 

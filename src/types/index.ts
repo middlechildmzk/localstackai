@@ -87,6 +87,8 @@ export interface Tool {
   not_ideal_for: string[] | null;
   freshness: FreshnessStatus;
   last_verified_at: string | null;
+  /** Preferred when present: a real per-tool link-check timestamp. */
+  last_checked?: string | null;
   is_sponsored: boolean;
   is_claimed: boolean;
   claimed_by: string | null;
