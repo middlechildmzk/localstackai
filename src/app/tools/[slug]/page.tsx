@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createServerClient } from "@/lib/supabase";
+import { getFallbackTool } from "@/lib/fallback-tools";
+import type { FallbackTool } from "@/lib/fallback-tools";
 import { logAnalyticsEvent } from "@/lib/analytics";
 import { buildMetadata, toolJsonLd } from "@/lib/seo";
 import {
@@ -16,23 +18,75 @@ import type { Tool } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
 
+// Continuity mode (no live database row): synthesize an honest Tool record
+// from the static fallback catalog so catalog tool pages resolve instead of
+// 404ing. Commercial terms stay explicitly unknown/unverified — never invent.
+const FALLBACK_CATALOG_DATE = "2026-10-20T00:00:00Z";
+
+type ToolWithJoins = Tool & { stack_tools: never[]; alternatives: never[] };
+
+function toolFromFallback(fb: FallbackTool): ToolWithJoins {
+  return {
+    id: fb.id,
+    slug: fb.slug,
+    name: fb.name,
+    tagline: fb.tagline,
+    description: fb.description,
+    logo_url: null,
+    website_url: fb.website_url,
+    affiliate_url: fb.affiliate_url,
+    pricing_model: fb.pricing_model as Tool["pricing_model"],
+    has_free_plan: false,
+    starting_price: null,
+    pricing_notes: null,
+    best_for: fb.best_for,
+    not_ideal_for: null,
+    freshness: fb.freshness,
+    last_verified_at: null,
+    is_sponsored: false,
+    is_claimed: false,
+    claimed_by: null,
+    is_featured: false,
+    is_published: true,
+    tool_score: 0,
+    view_count: 0,
+    save_count: 0,
+    stack_count: fb.stack_count,
+    click_count: 0,
+    created_at: FALLBACK_CATALOG_DATE,
+    updated_at: FALLBACK_CATALOG_DATE,
+    categories: [],
+    tags: [],
+    stack_tools: [],
+    alternatives: [],
+  };
+}
+
 async function getTool(slug: string) {
-  const supabase = createServerClient();
-  const { data } = await supabase
-    .from("tools")
-    .select(
-      `*,
+  let data: Tool | null = null;
+  try {
+    const supabase = createServerClient();
+    const { data: row } = await supabase
+      .from("tools")
+      .select(
+        `*,
       categories:tool_categories(category:categories(*)),
       tags:tool_tags(tag:tags(*)),
       stack_tools(stack:stacks(id,slug,title,visibility)),
       alternatives:tool_relationships!source_tool_id(
         target_tool:tools!target_tool_id(id,slug,name,logo_url,tagline,freshness,starting_price,pricing_model)
       )`
-    )
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .single();
-  return data as Tool | null;
+      )
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .single();
+    data = row as Tool | null;
+  } catch {
+    data = null;
+  }
+  if (data) return data;
+  const fallback = getFallbackTool(slug);
+  return fallback ? toolFromFallback(fallback) : null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

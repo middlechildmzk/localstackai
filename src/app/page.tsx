@@ -148,6 +148,42 @@ export default async function HomePage() {
 
       {stacks.length > 0 && <section className="py-12 px-4 border-t border-zinc-900"><div className="max-w-6xl mx-auto"><div className="flex items-end justify-between gap-4 mb-6"><div><p className="text-xs uppercase tracking-widest text-brand-400 mb-2">Stacks</p><h2 className="text-2xl font-semibold text-white">See complete tool combinations</h2></div><Link href="/stacks" className="text-sm text-zinc-300 hover:text-white inline-flex items-center gap-1">View stacks <ArrowRight size={14}/></Link></div><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{stacks.map((stack) => <PublicStackCard key={stack.id} stack={stack} />)}</div></div></section>}
 
+      <section className="py-12 px-4 border-t border-zinc-900">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "What is StackBuilder AI?",
+                acceptedAnswer: { "@type": "Answer", text: "StackBuilder AI is an independent directory of 1,097 AI tools with structured rankings, head-to-head comparisons, and stack recommendations. Rankings are editorial and can't be bought — sponsors get clearly labeled showcase slots only." },
+              },
+              {
+                "@type": "Question",
+                name: "Is StackBuilder AI legit?",
+                acceptedAnswer: { "@type": "Answer", text: "Yes. Every tool page carries a last-checked freshness label, comparison pages include a verdict block, and our methodology is published on the site." },
+              },
+            ],
+          }) }}
+        />
+        <div className="max-w-3xl mx-auto">
+          <p className="text-xs uppercase tracking-widest text-brand-400 mb-2">About</p>
+          <h2 className="text-2xl font-semibold text-white mb-6">About StackBuilder AI</h2>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
+              <h3 className="text-lg font-semibold text-white">What is StackBuilder AI?</h3>
+              <p className="mt-2 text-sm text-zinc-400 leading-relaxed">StackBuilder AI is an independent directory of 1,097 AI tools with structured rankings, head-to-head comparisons, and stack recommendations. Rankings are editorial and can&apos;t be bought — sponsors get clearly labeled showcase slots only.</p>
+            </div>
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
+              <h3 className="text-lg font-semibold text-white">Is StackBuilder AI legit?</h3>
+              <p className="mt-2 text-sm text-zinc-400 leading-relaxed">Yes. Every tool page carries a last-checked freshness label, comparison pages include a verdict block, and our methodology is published on the site.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 px-4 border-t border-zinc-900"><div className="max-w-3xl mx-auto text-center"><h2 className="text-2xl font-semibold text-white mb-3">Get practical AI workflow research</h2><p className="text-zinc-400 mb-6">New comparisons, workflow guides, and stack updates without the tool-directory noise.</p><div className="max-w-xl mx-auto"><NewsletterForm /></div></div></section>
     </div>
   );

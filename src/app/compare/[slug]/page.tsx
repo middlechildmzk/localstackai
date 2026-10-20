@@ -264,6 +264,17 @@ export default async function ComparePage({ params }: Props) {
         </div>
       </section>
 
+      {(toolASlug === "semrush" || toolBSlug === "semrush") && (
+        <section className="glass p-5 mb-8">
+          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-3">Coming from the Ahrefs side?</h2>
+          <p className="text-sm text-zinc-300 leading-relaxed">
+            Semrush is only half of the free-SEO picture. Ahrefs runs a permanent free account for verified sites—see{" "}
+            <Link href="/tools/ahrefs" className="text-brand-400 hover:text-brand-300">what Ahrefs Free includes</Link>,
+            how its crawl and backlink limits work, and when its paid tiers actually matter.
+          </p>
+        </section>
+      )}
+
       <div className="glass p-6 text-center">
         <p className="text-zinc-400 mb-4">
           Compare them in the context that matters: your full workflow and recurring stack cost.
