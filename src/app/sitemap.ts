@@ -97,29 +97,62 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/compare/gumloop-vs-zapier`, priority: 0.88, changeFrequency: "weekly" },
   ];
 
-  if (!hasSupabaseServiceConfig()) {
-    const fallbackToolRoutes: MetadataRoute.Sitemap = FALLBACK_TOOLS.filter((t) => t.slug !== "ahrefs").map((t) => ({
-      url: `${base}/tools/${t.slug}`,
-      priority: 0.7,
-      changeFrequency: "weekly",
-    }));
-    return [...staticRoutes, ...fallbackToolRoutes];
+  // Always include the full fallback catalog in the sitemap.
+  // Previously the fallback routes were only added when Supabase was
+  // unconfigured, so in production (where Supabase IS configured but not
+  // yet seeded with the catalog expansion) the sitemap listed only the
+  // static routes — 86 URLs with a single /tools/ entry — even though
+  // all 2,902 tool pages render live from the fallback catalog.
+  // Fix: merge fallback + Supabase routes, deduped by URL. Supabase
+  // tool entries overlay their fallback counterparts so lastModified
+  // from the database wins when a tool exists in both places.
+  const routesByUrl = new Map<string, MetadataRoute.Sitemap[number]>();
+
+  for (const route of staticRoutes) {
+    routesByUrl.set(route.url, route);
   }
 
-  try {
-    const supabase = createServerClient();
-    const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
-      supabase.from("tools").select("slug,updated_at").eq("is_published", true),
-      supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
-      supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
-    ]);
-
-    const toolRoutes: MetadataRoute.Sitemap = (tools ?? []).map((t: any) => ({ url: `${base}/tools/${t.slug}`, lastModified: t.updated_at, priority: 0.7, changeFrequency: "weekly" }));
-    const workflowRoutes: MetadataRoute.Sitemap = (workflows ?? []).map((w: any) => ({ url: `${base}/workflows/${w.slug}`, lastModified: w.updated_at, priority: 0.8, changeFrequency: "weekly" }));
-    const stackRoutes: MetadataRoute.Sitemap = (stacks ?? []).map((s: any) => ({ url: `${base}/stacks/${s.slug}`, lastModified: s.updated_at, priority: 0.6, changeFrequency: "weekly" }));
-
-    return [...staticRoutes, ...toolRoutes, ...workflowRoutes, ...stackRoutes];
-  } catch {
-    return staticRoutes;
+  for (const t of FALLBACK_TOOLS) {
+    const url = `${base}/tools/${t.slug}`;
+    // "ahrefs" is already a static route with higher priority; skip the dupe.
+    if (!routesByUrl.has(url)) {
+      routesByUrl.set(url, { url, priority: 0.7, changeFrequency: "weekly" });
+    }
   }
+
+  if (hasSupabaseServiceConfig()) {
+    try {
+      const supabase = createServerClient();
+      const [{ data: tools }, { data: workflows }, { data: stacks }] = await Promise.all([
+        supabase.from("tools").select("slug,updated_at").eq("is_published", true),
+        supabase.from("workflows").select("slug,updated_at").eq("is_published", true),
+        supabase.from("stacks").select("slug,updated_at").eq("visibility", "public"),
+      ]);
+
+      for (const t of tools ?? []) {
+        const url = `${base}/tools/${t.slug}`;
+        // Overlay the fallback entry (keeps exactly one entry per tool,
+        // now with the database lastModified). Tools that exist only in
+        // Supabase are added here too.
+        routesByUrl.set(url, { url, lastModified: t.updated_at, priority: 0.7, changeFrequency: "weekly" });
+      }
+      for (const w of workflows ?? []) {
+        const url = `${base}/workflows/${w.slug}`;
+        if (!routesByUrl.has(url)) {
+          routesByUrl.set(url, { url, lastModified: w.updated_at, priority: 0.8, changeFrequency: "weekly" });
+        }
+      }
+      for (const s of stacks ?? []) {
+        const url = `${base}/stacks/${s.slug}`;
+        if (!routesByUrl.has(url)) {
+          routesByUrl.set(url, { url, lastModified: s.updated_at, priority: 0.6, changeFrequency: "weekly" });
+        }
+      }
+    } catch {
+      // Supabase unreachable: the fallback catalog above still gives a
+      // complete sitemap. Never fall back to static routes only.
+    }
+  }
+
+  return [...routesByUrl.values()];
 }
