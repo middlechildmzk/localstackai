@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { createServerClient, hasSupabaseServiceConfig } from "@/lib/supabase";
+import { FALLBACK_TOOLS } from "@/lib/fallback-tools";
 import type { MetadataRoute } from "next";
 
 const CANONICAL_APP_URL = "https://www.stackbuilderai.com";
@@ -20,6 +21,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/learn/ai-apps`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/learn/digital-products`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/learn/affiliate-marketing`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-podcasters`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-online-course-creators`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-newsletter-writers`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-streamers`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-social-media-managers`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-real-estate-agents`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-recruiters`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-teachers`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-tools-for-small-business`, priority: 0.86, changeFrequency: "weekly" },
+    { url: `${base}/learn/best-ai-meeting-assistants`, priority: 0.86, changeFrequency: "weekly" },
     { url: `${base}/stacks/ai-music-release-stack`, priority: 0.88, changeFrequency: "weekly" },
     { url: `${base}/stacks/faceless-video-stack`, priority: 0.87, changeFrequency: "weekly" },
     { url: `${base}/stacks/no-code-mvp-stack`, priority: 0.88, changeFrequency: "weekly" },
@@ -86,7 +97,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/compare/gumloop-vs-zapier`, priority: 0.88, changeFrequency: "weekly" },
   ];
 
-  if (!hasSupabaseServiceConfig()) return staticRoutes;
+  if (!hasSupabaseServiceConfig()) {
+    const fallbackToolRoutes: MetadataRoute.Sitemap = FALLBACK_TOOLS.filter((t) => t.slug !== "ahrefs").map((t) => ({
+      url: `${base}/tools/${t.slug}`,
+      priority: 0.7,
+      changeFrequency: "weekly",
+    }));
+    return [...staticRoutes, ...fallbackToolRoutes];
+  }
 
   try {
     const supabase = createServerClient();
